@@ -1,0 +1,38 @@
+# Lefthook configuration
+# See: https://github.com/evilmartians/lefthook
+
+# pre-commit: コミット前にBiomeでリント・フォーマットを自動実行
+pre-commit:
+  commands:
+    # Biomeでリント＋フォーマット
+    # - TS/JS/JSX/TSX: リント + フォーマット
+    # - JSON/JSONC: フォーマット
+    # - 自動修正可能なエラーを修正し、変更をステージングに追加
+    biome:
+      glob: "{apps,packages}/**/*.{js,ts,jsx,tsx,json,jsonc}"
+      run: bunx biome check --write --no-errors-on-unmatched --files-ignore-unknown=true {staged_files}
+      stage_fixed: true
+
+# pre-push: プッシュ前にテストとビルドを実行
+pre-push:
+  commands:
+    # Biomeリントチェック（修正はしない、エラーがあれば失敗）
+    # コミット済みのコード全体をチェック
+    lint-check:
+      run: bun run lint
+
+    # テスト実行
+    test:
+      run: bun run test
+      # テストが重い場合はコメントアウト
+      # skip:
+      #   - merge
+      #   - rebase
+
+    # ビルド確認
+    build:
+      run: bun run build
+      # 開発中はスキップしたい場合はコメントアウト解除
+      # skip:
+      #   - ref: main
+      #     name: Skip build on main branch
