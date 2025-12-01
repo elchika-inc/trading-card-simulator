@@ -195,7 +195,7 @@ export function Landing() {
             icon={<Sparkles className="w-8 h-8" />}
             gradient="from-pink-600 via-purple-600 to-indigo-600"
             active
-            onClick={() => navigate("/pack-select")}
+            onClick={() => navigate("/packs")}
           />
 
           {/* ギャラリーボタン */}

@@ -43,14 +43,38 @@
         "head_sampling_rate": 0.5
       }
     }
+  },
+
+  // D1 Database
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "trading-cards",
+      "database_id": "YOUR_DATABASE_ID",
+      "migrations_dir": "src/infrastructure/persistence/d1/migrations"
+    }
+  ],
+
+  // Cloudflare Queues（イベント駆動）
+  "queues": {
+    "producers": [
+      {
+        "binding": "EVENTS_QUEUE",
+        "queue": "trading-card-events"
+      }
+    ],
+    "consumers": [
+      {
+        "queue": "trading-card-events",
+        "max_batch_size": 10,
+        "max_batch_timeout": 30
+      }
+    ]
   }
 
   // 将来的なバインディング例（必要に応じてコメント解除）
   // "kv_namespaces": [
   //   { "binding": "CARD_CACHE", "id": "your-kv-id" }
-  // ],
-  // "d1_databases": [
-  //   { "binding": "DB", "database_name": "cards", "database_id": "your-db-id" }
   // ],
   // "r2_buckets": [
   //   { "binding": "CARD_IMAGES", "bucket_name": "card-images" }

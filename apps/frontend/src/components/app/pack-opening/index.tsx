@@ -1,5 +1,5 @@
 import type { Card } from "@repo/types";
-import { RefreshCcw, Sparkles } from "lucide-react";
+import { ArrowLeft, RefreshCcw, Sparkles } from "lucide-react";
 import { useRef, useState } from "react";
 import { cssAnimations } from "./animations";
 import { clamp } from "./constants";
@@ -153,20 +153,32 @@ export function PackOpening({ cards, packImage, backImage = null, onReset }: Pac
       </div>
 
       <div className="absolute top-0 left-0 right-0 p-6 flex justify-between items-center z-50">
-        <h1 className="text-white text-xl font-bold tracking-wider opacity-80 flex items-center gap-2">
+        {/* 左側: パック選択に戻るボタン */}
+        <button
+          onClick={handleReset}
+          type="button"
+          className="flex items-center gap-2 text-white/80 hover:text-white transition-colors bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full backdrop-blur-sm"
+          title="パック選択に戻る"
+        >
+          <ArrowLeft className="w-5 h-5" />
+          <span className="text-sm font-bold">パック選択</span>
+        </button>
+
+        {/* 中央: タイトル */}
+        <h1 className="absolute left-1/2 -translate-x-1/2 text-white text-xl font-bold tracking-wider opacity-80 flex items-center gap-2">
           <Sparkles className="w-5 h-5 text-yellow-400" />
           PACK OPENER
         </h1>
-        <div className="flex gap-4">
-          <button
-            onClick={handleReset}
-            type="button"
-            className="p-2 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors backdrop-blur-sm"
-            title="Reset Pack"
-          >
-            <RefreshCcw className="w-5 h-5" />
-          </button>
-        </div>
+
+        {/* 右側: リセットボタン */}
+        <button
+          onClick={handleReset}
+          type="button"
+          className="p-2 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors backdrop-blur-sm"
+          title="リセット"
+        >
+          <RefreshCcw className="w-5 h-5" />
+        </button>
       </div>
 
       <div className="relative w-full max-w-lg h-[600px] flex items-center justify-center perspective-[1200px]">

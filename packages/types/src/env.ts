@@ -111,13 +111,16 @@ export interface Env {
    * D1 Database
    * @see https://developers.cloudflare.com/d1/
    * @example
-   * // wrangler.toml
-   * [[d1_databases]]
-   * binding = "DB"
-   * database_name = "my-database"
-   * database_id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+   * // wrangler.jsonc
+   * "d1_databases": [
+   *   {
+   *     "binding": "DB",
+   *     "database_name": "trading-cards",
+   *     "database_id": "YOUR_DATABASE_ID"
+   *   }
+   * ]
    */
-  // DB?: D1Database;
+  DB?: D1Database;
 
   /**
    * Durable Object
@@ -131,15 +134,17 @@ export interface Env {
   // MY_DURABLE_OBJECT?: DurableObjectNamespace;
 
   /**
-   * Queue
+   * Events Queue（ドメインイベント用）
    * @see https://developers.cloudflare.com/queues/
    * @example
-   * // wrangler.toml
-   * [[queues.producers]]
-   * binding = "MY_QUEUE"
-   * queue = "my-queue"
+   * // wrangler.jsonc
+   * "queues": {
+   *   "producers": [
+   *     { "binding": "EVENTS_QUEUE", "queue": "trading-card-events" }
+   *   ]
+   * }
    */
-  // MY_QUEUE?: Queue;
+  EVENTS_QUEUE?: Queue;
 
   /**
    * Vectorize Index
