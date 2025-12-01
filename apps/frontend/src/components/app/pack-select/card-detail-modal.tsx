@@ -18,9 +18,17 @@ export function CardDetailModal({ card, onClose, CardComponent = HoloCard }: Car
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-[fadeIn_0.2s_ease-out]">
       {/* 背景オーバーレイ */}
       <div
+        role="button"
+        tabIndex={0}
+        aria-label="モーダルを閉じる"
         className="absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity"
         onClick={onClose}
-        onKeyDown={(e) => e.key === "Escape" && onClose()}
+        onKeyDown={(e) => {
+          if (e.key === "Escape" || e.key === "Enter") {
+            e.preventDefault();
+            onClose();
+          }
+        }}
       />
 
       {/* モーダルコンテンツ */}

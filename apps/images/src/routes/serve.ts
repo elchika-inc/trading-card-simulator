@@ -21,8 +21,14 @@ export async function handleServe(c: Context<{ Bindings: Env }>): Promise<Respon
       return response;
     }
 
+    // R2バケットの存在確認
+    const bucket = c.env.CARD_IMAGES;
+    if (!bucket) {
+      return c.json({ error: "R2 bucket not configured" }, 500);
+    }
+
     // R2から画像取得
-    const object = await getFromR2(c.env.CARD_IMAGES!, key);
+    const object = await getFromR2(bucket, key);
     if (!object) {
       return c.json({ error: "Image not found" }, 404);
     }

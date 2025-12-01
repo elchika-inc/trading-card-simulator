@@ -110,11 +110,21 @@ export function PackIdle({
       />
 
       <div
+        role="button"
+        tabIndex={0}
+        aria-label="パックを引いて開封する"
         className="absolute top-0 left-0 right-0 h-[120px] z-50 cursor-grab active:cursor-grabbing touch-none flex items-center justify-center"
         onMouseDown={onMouseDown}
         onMouseMove={onMouseMove}
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            // キーボード操作でドラッグ開始をシミュレート
+            onMouseDown({ clientX: 0 } as React.MouseEvent);
+          }
+        }}
       >
         {gameState === "idle" && tearProgress < 0.1 && (
           <div className="absolute top-[35px] w-full flex items-center justify-center pointer-events-none opacity-90">

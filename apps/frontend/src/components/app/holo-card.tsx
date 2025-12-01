@@ -80,12 +80,25 @@ export function HoloCard({ card, onClick, className = "", showCount = true }: Ho
 
   return (
     <div
+      role={onClick ? "button" : "img"}
+      tabIndex={onClick ? 0 : undefined}
       className={`relative group perspective-1000 touch-none ${className}`}
       style={{ perspective: "1000px" }}
       onClick={onClick}
+      onKeyDown={
+        onClick
+          ? (e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onClick();
+              }
+            }
+          : undefined
+      }
     >
       <div
         ref={cardRef}
+        role="presentation"
         // マウスイベント
         onMouseMove={handleMouseMove}
         onMouseEnter={() => setState((s) => ({ ...s, isHovering: true }))}

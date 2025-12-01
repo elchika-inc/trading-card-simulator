@@ -156,9 +156,9 @@ export function Landing() {
 
             {/* インジケーター */}
             <div className="flex gap-2 mt-8 z-20">
-              {featuredCards.map((_, idx) => (
+              {featuredCards.map((card, idx) => (
                 <button
-                  key={idx}
+                  key={card.id}
                   onClick={() => goToCard(idx)}
                   className={`h-2 rounded-full transition-all duration-300 ${
                     idx === currentIndex
@@ -167,6 +167,7 @@ export function Landing() {
                   }`}
                   disabled={transitioning}
                   type="button"
+                  aria-label={`${card.name}を表示`}
                 />
               ))}
             </div>

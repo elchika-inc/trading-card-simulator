@@ -131,6 +131,8 @@ export function PackOpening({ cards, packImage, backImage = null, onReset }: Pac
 
   return (
     <div
+      role="application"
+      aria-label="パック開封ゲーム"
       className="min-h-screen bg-slate-900 flex flex-col items-center justify-center overflow-hidden font-sans select-none relative"
       onMouseUp={onMouseUp}
       onMouseLeave={onMouseUp}

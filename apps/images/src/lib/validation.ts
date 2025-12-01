@@ -17,7 +17,8 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024;
  */
 export function validateImageFile(file: File): { valid: true } | { valid: false; error: string } {
   // MIME typeチェック
-  if (!ALLOWED_MIME_TYPES.includes(file.type as any)) {
+  type AllowedMimeType = (typeof ALLOWED_MIME_TYPES)[number];
+  if (!ALLOWED_MIME_TYPES.includes(file.type as AllowedMimeType)) {
     return {
       valid: false,
       error: `Invalid file type: ${file.type}. Allowed types: ${ALLOWED_MIME_TYPES.join(", ")}`,

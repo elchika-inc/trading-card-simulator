@@ -109,10 +109,17 @@ export function CardGallery() {
       {/* モーダルオーバーレイ */}
       {selectedCard && (
         <div
+          role="button"
+          tabIndex={0}
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md transition-opacity duration-300"
           onClick={handleCloseModal}
+          onKeyDown={(e) => {
+            if (e.key === "Escape" || e.key === "Enter") {
+              handleCloseModal();
+            }
+          }}
         >
-          <div className="relative" onClick={(e) => e.stopPropagation()}>
+          <div role="presentation" className="relative" onClick={(e) => e.stopPropagation()}>
             {/* 閉じるボタン */}
             <button
               type="button"

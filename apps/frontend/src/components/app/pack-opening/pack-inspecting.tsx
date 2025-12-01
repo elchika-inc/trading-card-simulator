@@ -31,10 +31,14 @@ export function PackInspecting({
 
   return (
     <div
+      role="button"
+      tabIndex={0}
+      aria-label={isCardFlipped ? "次のカードへ" : "カードをめくる"}
       className="relative cursor-pointer perspective-[1200px]"
       onClick={onCardClick}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
           onCardClick();
         }
       }}

@@ -13,8 +13,14 @@ export async function handleList(c: Context<{ Bindings: Env }>): Promise<Respons
     const cursor = c.req.query("cursor");
     const prefix = c.req.query("prefix");
 
+    // R2バケットの存在確認
+    const bucket = c.env.CARD_IMAGES;
+    if (!bucket) {
+      return c.json({ success: false, error: "R2 bucket not configured" }, 500);
+    }
+
     // R2からリスト取得
-    const result = await listFromR2(c.env.CARD_IMAGES!, {
+    const result = await listFromR2(bucket, {
       limit,
       cursor,
       prefix: prefix ? `images/${prefix}` : "images/",
@@ -22,7 +28,7 @@ export async function handleList(c: Context<{ Bindings: Env }>): Promise<Respons
 
     // ImageMetadataに変換
     const baseUrl = new URL(c.req.url).origin;
-    const images = result.objects.map((obj) => r2ObjectToImageMetadata(obj as any, baseUrl));
+    const images = result.objects.map((obj) => r2ObjectToImageMetadata(obj as R2Object, baseUrl));
 
     const response: ImageListResponse = {
       success: true,
