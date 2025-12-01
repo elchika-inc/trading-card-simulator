@@ -32,6 +32,8 @@
       },
       "correctness": {
         "noUnusedVariables": "error",
+        "noUnusedFunctionParameters": "warn",
+        "noUnusedImports": "error",
         "useExhaustiveDependencies": "warn"
       },
       "suspicious": {
@@ -41,6 +43,9 @@
       },
       "performance": {
         "noAccumulatingSpread": "warn"
+      },
+      "security": {
+        "noDangerouslySetInnerHtml": "warn"
       }
     }
   },
