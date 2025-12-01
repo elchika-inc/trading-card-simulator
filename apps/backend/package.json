@@ -5,8 +5,8 @@
   "type": "module",
   "main": "src/index.ts",
   "scripts": {
-    "dev": "wrangler dev --config wrangler.jsonc",
-    "deploy": "wrangler deploy --config wrangler.jsonc"
+    "dev": "bunx wrangler dev --config wrangler.jsonc",
+    "deploy": "bunx wrangler deploy --config wrangler.jsonc"
   },
   "dependencies": {
     "hono": "^4.10.6",

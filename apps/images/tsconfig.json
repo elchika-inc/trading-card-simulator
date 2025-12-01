@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "types": ["@cloudflare/workers-types/2023-07-01"]
+  },
+  "include": ["src/**/*"],
+  "references": [{ "path": "../../packages/types" }]
+}

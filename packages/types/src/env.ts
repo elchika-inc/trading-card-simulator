@@ -51,6 +51,22 @@ export interface Env {
    */
   API_ENDPOINT?: string;
 
+  /**
+   * 画像Worker URL（画像配信用）
+   * @example
+   * // .dev.vars
+   * IMAGE_WORKER_URL="http://localhost:8788"
+   */
+  IMAGE_WORKER_URL?: string;
+
+  /**
+   * CORS許可オリジン（画像Worker用）
+   * @example
+   * // .dev.vars
+   * ALLOWED_ORIGINS="http://localhost:5173,https://example.com"
+   */
+  ALLOWED_ORIGINS?: string;
+
   // ===========================================================================
   // Cloudflare バインディング
   // ===========================================================================
@@ -76,6 +92,20 @@ export interface Env {
    * bucket_name = "my-bucket"
    */
   // MY_BUCKET?: R2Bucket;
+
+  /**
+   * R2 Bucket for Card Images (画像Worker用)
+   * @see https://developers.cloudflare.com/r2/
+   * @example
+   * // wrangler.jsonc (apps/images)
+   * "r2_buckets": [
+   *   {
+   *     "binding": "CARD_IMAGES",
+   *     "bucket_name": "trading-card-images"
+   *   }
+   * ]
+   */
+  CARD_IMAGES?: R2Bucket;
 
   /**
    * D1 Database

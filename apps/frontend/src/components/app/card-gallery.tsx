@@ -1,0 +1,135 @@
+/**
+ * カードギャラリーページ
+ * バックエンドからカードデータを取得して表示
+ */
+
+import type { Card } from "@repo/types";
+import { X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { apiClient } from "@/lib/api-client";
+import { cssKeyframes } from "@/lib/keyframes";
+import { HoloCard } from "./holo-card";
+
+export function CardGallery() {
+  const [cards, setCards] = useState<Card[]>([]);
+  const [selectedCard, setSelectedCard] = useState<Card | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // カードデータ取得
+  useEffect(() => {
+    const fetchCards = async () => {
+      try {
+        setLoading(true);
+        const response = await apiClient.api.cards.$get();
+        const data = await response.json();
+
+        if ("cards" in data) {
+          setCards(data.cards);
+        } else {
+          setError("カードデータの取得に失敗しました");
+        }
+      } catch (err) {
+        console.error("Error fetching cards:", err);
+        setError("カードデータの取得中にエラーが発生しました");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCards();
+  }, []);
+
+  // モーダルを閉じる処理
+  const handleCloseModal = () => {
+    setSelectedCard(null);
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-neutral-950 flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto" />
+          <p className="text-gray-400">カードデータを読み込み中...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-neutral-950 flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <p className="text-red-400">{error}</p>
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+          >
+            再読み込み
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-neutral-950 py-16 px-4 text-slate-200">
+      {/* グローバルCSSアニメーションを注入 */}
+      <style dangerouslySetInnerHTML={{ __html: cssKeyframes }} />
+
+      <div className="max-w-7xl mx-auto">
+        <div className="text-center mb-12 space-y-4">
+          <h1 className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-200 via-purple-200 to-pink-200 pb-2">
+            Holographic Card Gallery
+          </h1>
+          <p className="text-gray-400 max-w-2xl mx-auto text-base">
+            Click on a card to inspect it in detail.
+          </p>
+          <div className="text-sm text-gray-500">Total Cards: {cards.length}</div>
+        </div>
+
+        {/* グリッドレイアウト */}
+        <div className="flex flex-wrap justify-center gap-8 perspective-origin-center">
+          {cards.map((card) => (
+            <HoloCard
+              key={card.id}
+              card={card}
+              onClick={() => setSelectedCard(card)}
+              className="w-[260px] h-[400px]"
+            />
+          ))}
+        </div>
+
+        <div className="mt-20 text-center text-xs text-gray-700">
+          <p>Powered by React, Hono RPC, Tailwind CSS & CSS Blend Modes.</p>
+        </div>
+      </div>
+
+      {/* モーダルオーバーレイ */}
+      {selectedCard && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md transition-opacity duration-300"
+          onClick={handleCloseModal}
+        >
+          <div className="relative" onClick={(e) => e.stopPropagation()}>
+            {/* 閉じるボタン */}
+            <button
+              type="button"
+              onClick={handleCloseModal}
+              className="absolute -top-12 right-0 p-2 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-colors"
+            >
+              <X size={24} />
+            </button>
+
+            {/* 拡大表示されたカード */}
+            <HoloCard
+              card={selectedCard}
+              className="w-[320px] h-[480px] sm:w-[400px] sm:h-[600px]"
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

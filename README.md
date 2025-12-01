@@ -1,13 +1,12 @@
-# Hono + React SPA Project Template
+# Trading Card Simulator 🎴
 
-モダンなフルスタックWebアプリケーション開発のための包括的なプロジェクトテンプレートです。Hono（バックエンド）、React（フロントエンド）、Bun、Tailwind CSS 4、shadcn/uiを組み合わせ、開発効率と保守性を両立させた環境を提供します。
+猫と他の動物を組み合わせたユニークなキャラクターカードをコレクションするWebアプリケーション。ガチャシステムでランダムにカードを引いてコレクションを楽しめます。
 
 ## 📖 目次
 
 - [プロジェクト概要](#プロジェクト概要)
 - [技術スタック](#技術スタック)
 - [セットアップ](#セットアップ)
-- [テンプレート利用時の初期設定](#テンプレート利用時の初期設定)
 - [利用可能なコマンド](#利用可能なコマンド)
 - [アーキテクチャ](#アーキテクチャ)
 - [開発ワークフロー](#開発ワークフロー)
@@ -17,11 +16,18 @@
 
 ## 🎯 プロジェクト概要
 
-Hono（バックエンド）+ React（フロントエンド）+ Bun + Vite + Tailwind CSS 4 + shadcn/uiを使用したフルスタックWebアプリケーションテンプレート。
+**Trading Card Simulator** は、ガチャでランダムにキャラクターカードを引き、コレクションを楽しむシミュレーターです。
 
-**主な特徴:**
-- React SPAとHono APIの明確な分離
-- 型安全性とコード品質管理が標準装備
+**主な機能:**
+- 🎰 **ガチャシステム** - カードをランダムに引く楽しさ
+- 📚 **コレクション管理** - 集めたカードを一覧で確認
+- ⭐ **レアリティシステム** - 5段階のカテゴリ（🔥熱い、💕かわいい、❄️クール、🖤ダーク、🤍ホワイト）
+- 🎨 **個性豊かなキャラクター** - 猫×動物の組み合わせ
+- 🎮 **2000年代ゲーム風UI** - ノスタルジックなレトロゲーム風デザイン
+
+**技術的特徴:**
+- Hono RPCによる型安全なAPI通信
+- Bun Workspacesによるモノレポ構成
 - Cloudflare Pages/Workersへのデプロイ対応
 - Git Hooks、テスト、CI/CDを含む完全な開発環境
 
@@ -32,7 +38,7 @@ Hono（バックエンド）+ React（フロントエンド）+ Bun + Vite + Tai
 - **[Bun](https://bun.sh)** - JavaScriptランタイム
 
 ### フロントエンド
-- **[React](https://react.dev/)** 19 - UIライブラリ
+- **[React](https://react.dev/)** 18 - UIライブラリ
 - **[Vite](https://vite.dev/)** - 高速ビルドツール・開発サーバー
 - **[Tailwind CSS](https://tailwindcss.com/)** v4 - CSSフレームワーク
 - **[shadcn/ui](https://ui.shadcn.com/)** - 再利用可能なUIコンポーネント
@@ -82,115 +88,6 @@ bun run test
 # ビルド確認
 bun run build
 ```
-
-## ⚙️ テンプレート利用時の初期設定
-
-このテンプレートを使って新規プロジェクトを作成する際は、以下の設定を必ず更新してください。
-
-### 1. プロジェクト名の変更
-
-#### package.json
-
-```json
-{
-  "name": "init-project",  // ← あなたのプロジェクト名に変更
-  ...
-}
-```
-
-#### wrangler設定ファイル
-
-このプロジェクトでは、React SPAとHono APIを分離してデプロイするため、2つの設定ファイルがあります:
-
-**apps/frontend/wrangler.jsonc（Cloudflare Pages用 - React SPA）**:
-```jsonc
-{
-  "name": "hono-react-pages",  // ← Pagesプロジェクト名に変更
-  "pages_build_output_dir": "dist"
-}
-```
-
-**apps/backend/wrangler.jsonc（Cloudflare Workers用 - Hono API）**:
-```jsonc
-{
-  "name": "hono-api-worker",  // ← Worker名に変更
-  "main": "src/index.ts",
-  "compatibility_date": "2024-09-23",
-  "compatibility_flags": ["nodejs_compat"]
-}
-```
-
-### 2. .gitignoreファイルのセットアップ
-
-```bash
-# .gitignore.example をコピー
-cp .gitignore.example .gitignore
-```
-
-### 3. 環境変数の設定
-
-バックエンド開発用の環境変数を設定します（wrangler dev が自動的に読み込みます）:
-
-```bash
-# apps/backend/.dev.vars を編集
-# すでにテンプレート実装例の環境変数が含まれています
-```
-
-**必須の環境変数** (使用する場合):
-
-- `SESSION_SECRET` - セッション暗号化キー
-  ```bash
-  # 生成方法
-  node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
-  ```
-
-**注意**: `apps/backend/.dev.vars`ファイルは`.gitignore`に含まれており、Gitにコミットされません。
-
-### 4. GitHub Secrets の設定（CI/CD用）
-
-自動デプロイを有効にする場合は、GitHubリポジトリに以下のシークレットを設定してください:
-
-**リポジトリ設定**: `Settings` → `Secrets and variables` → `Actions` → `New repository secret`
-
-| シークレット名 | 説明 | 取得方法 |
-|--------------|------|---------|
-| `CLOUDFLARE_API_TOKEN` | Cloudflare APIトークン | [Cloudflare Dashboard](https://dash.cloudflare.com/profile/api-tokens) → `Create Token` → "Edit Cloudflare Workers" テンプレート |
-| `CLOUDFLARE_ACCOUNT_ID` | CloudflareアカウントID | Cloudflare Dashboard → Workers & Pages → URLから確認 |
-| `CLOUDFLARE_PAGES_PROJECT_NAME` | Cloudflare Pagesプロジェクト名 | `apps/frontend/wrangler.jsonc`の`name`と同じ値 |
-| `CLOUDFLARE_WORKERS_PROJECT_NAME` | Cloudflare Workersプロジェクト名 | `apps/backend/wrangler.jsonc`の`name`と同じ値 |
-
-### 5. Cloudflareへのデプロイ
-
-```bash
-# Cloudflareにログイン（初回のみ）
-bunx wrangler login
-
-# React SPAをCloudflare Pagesにデプロイ
-bun run deploy:pages
-
-# Hono APIをCloudflare Workersにデプロイ
-bun run deploy:workers
-
-# 両方をまとめてデプロイ
-bun run deploy
-```
-
-### チェックリスト
-
-新規プロジェクト作成時に以下を確認してください:
-
-- [ ] `package.json`のプロジェクト名を変更
-- [ ] `apps/frontend/wrangler.jsonc`のPagesプロジェクト名を変更
-- [ ] `apps/backend/wrangler.jsonc`のWorker名を変更
-- [ ] `.gitignore.example`を`.gitignore`にコピー
-- [ ] `apps/backend/.dev.vars`の環境変数を必要に応じて設定
-- [ ] GitHub Secretsを設定（CI/CD使用時）
-- [ ] Cloudflare PagesとWorkersプロジェクトをデプロイ
-- [ ] プロダクション環境変数をCloudflare Dashboardで設定
-- [ ] `bun install`で依存関係をインストール
-- [ ] `bun run dev`で開発サーバーが起動することを確認（フロントエンド）
-- [ ] `bun run dev:backend`でバックエンドサーバーが起動することを確認
-- [ ] `bun run build`でビルドが成功することを確認
 
 ## 🛠️ 利用可能なコマンド
 
@@ -256,6 +153,13 @@ bunx shadcn add form
 
 # 利用可能なコンポーネント一覧を確認
 bunx shadcn add
+```
+
+### キャッシュクリア
+
+```bash
+# 全キャッシュとnode_modulesを削除して再インストール
+bun run clean
 ```
 
 ### Cloudflareデプロイ
@@ -497,13 +401,25 @@ kill -9 <PID>
 ### キャッシュのクリア
 
 ```bash
-# Bunキャッシュをクリア
-bun pm cache rm
+# 推奨: 全キャッシュと依存関係をクリーンアップ
+bun run clean
 
-# node_modulesを削除して再インストール
-rm -rf node_modules bun.lockb
-bun install
+# 実行内容:
+# - ルートと全ワークスペースのnode_modules削除
+# - bun.lockb削除
+# - Viteキャッシュ（.vite）削除
+# - Wranglerキャッシュ（.wrangler）削除
+# - 依存関係を再インストール
+
+# または個別にBunキャッシュをクリア
+bun pm cache rm
 ```
+
+**使用タイミング:**
+- React/lucide-reactなどのバージョン変更後にエラーが続く場合
+- 依存関係の競合エラーが発生した場合
+- 原因不明のビルドエラーやランタイムエラーが発生した場合
+- ブラウザキャッシュもクリア推奨（`Cmd+Shift+R` / `Ctrl+Shift+R`）
 
 ### Playwrightブラウザのインストール
 

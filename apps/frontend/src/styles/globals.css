@@ -54,4 +54,161 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* カードエフェクト用のキーフレームアニメーション */
+  @keyframes holoSpin {
+    0% { background-position: 0% 0%; }
+    100% { background-position: 200% 200%; }
+  }
+  @keyframes holoRotate {
+    0% { transform: rotate(0deg) scale(1.5); }
+    100% { transform: rotate(360deg) scale(1.5); }
+  }
+  @keyframes rainFall {
+    0% { background-position: 0% 0%; }
+    100% { background-position: 0% 200%; }
+  }
+  @keyframes radarSweep {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 0.4; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(1.1); }
+  }
+  @keyframes warpSpeed {
+    0% { background-size: 100% 100%; opacity: 0.3; }
+    50% { opacity: 0.8; }
+    100% { background-size: 200% 200%; opacity: 0.3; }
+  }
+  @keyframes shootingStar {
+    0% { background-position: 0% 0%; }
+    100% { background-position: 200% 200%; }
+  }
+  @keyframes textShine {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 100% 50%; }
+  }
+  @keyframes breathingText {
+    0%, 100% { text-shadow: 0 0 10px rgba(255,255,255,0.5); }
+    50% { text-shadow: 0 0 25px rgba(255,255,255,1), 0 0 10px rgba(255,255,255,0.5); }
+  }
+  @keyframes glitchAnim {
+    0% { clip-path: inset(50% 0 30% 0); transform: translate(-5px,0); }
+    20% { clip-path: inset(20% 0 60% 0); transform: translate(5px,0); }
+    40% { clip-path: inset(40% 0 40% 0); transform: translate(-5px,0); }
+    60% { clip-path: inset(80% 0 5% 0); transform: translate(5px,0); }
+    80% { clip-path: inset(10% 0 70% 0); transform: translate(-5px,0); }
+    100% { clip-path: inset(30% 0 50% 0); transform: translate(5px,0); }
+  }
+
+  /* ランディングページ用アニメーション */
+  @keyframes gradient-bg {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-15px); }
+  }
+
+  @keyframes fadeOutLeft {
+    from { opacity: 1; transform: translateX(0) scale(1) rotateY(0deg); }
+    to { opacity: 0; transform: translateX(-60px) scale(0.8) rotateY(-10deg); }
+  }
+
+  @keyframes fadeInRight {
+    from { opacity: 0; transform: translateX(60px) scale(0.8) rotateY(10deg); }
+    to { opacity: 1; transform: translateX(0) scale(1) rotateY(0deg); }
+  }
+
+  @keyframes fadeOutRight {
+    from { opacity: 1; transform: translateX(0) scale(1) rotateY(0deg); }
+    to { opacity: 0; transform: translateX(60px) scale(0.8) rotateY(10deg); }
+  }
+
+  @keyframes fadeInLeft {
+    from { opacity: 0; transform: translateX(-60px) scale(0.8) rotateY(-10deg); }
+    to { opacity: 1; transform: translateX(0) scale(1) rotateY(0deg); }
+  }
+
+  .animate-gradient-bg {
+    animation: gradient-bg 15s ease infinite;
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .card-anim-enter-right {
+    animation: fadeInRight 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  }
+
+  .card-anim-exit-left {
+    animation: fadeOutLeft 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  }
+
+  .card-anim-enter-left {
+    animation: fadeInLeft 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  }
+
+  .card-anim-exit-right {
+    animation: fadeOutRight 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  }
+
+  /* Orbitronフォント用クラス */
+  .font-orbitron {
+    font-family: 'Orbitron', sans-serif;
+  }
+
+  /* パック選択画面用のアニメーション */
+  @keyframes slideUp {
+    from { transform: translateY(40px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes zoomIn {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  @keyframes marquee-reverse {
+    0% { transform: translateX(-50%); }
+    100% { transform: translateX(0); }
+  }
+
+  /* 3Dパック選択用のユーティリティクラス */
+  .perspective-container {
+    perspective: 1200px;
+  }
+
+  .transform-style-3d {
+    transform-style: preserve-3d;
+  }
+
+  .backface-hidden {
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+
+  .rotate-y-180 {
+    transform: rotateY(180deg);
+  }
+
+  /* 反射エフェクト用のマスク */
+  .reflection-mask {
+    mask-image: linear-gradient(to bottom, transparent 50%, black 100%);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 50%, black 100%);
+  }
 }

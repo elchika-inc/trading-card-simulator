@@ -1,5 +1,5 @@
 {
-  "name": "hono-react-template",
+  "name": "trading-card-simulator",
   "type": "module",
   "private": true,
   "workspaces": [
@@ -9,13 +9,19 @@
   "scripts": {
     "dev": "cd apps/frontend && bun run dev",
     "dev:backend": "cd apps/backend && bun run dev",
+    "dev:images": "cd apps/images && bun run dev",
+    "dev:admin": "cd apps/admin && bun run dev",
     "build": "cd apps/frontend && bun run build",
     "build:frontend": "cd apps/frontend && bun run build",
     "build:backend": "echo 'Backend does not require build'",
+    "build:admin": "cd apps/admin && bun run build",
     "preview": "cd apps/frontend && bun run preview",
     "deploy:pages": "bun run build:frontend && wrangler pages deploy apps/frontend/dist --config apps/frontend/wrangler.jsonc",
     "deploy:workers": "cd apps/backend && bun run deploy",
-    "deploy": "bun run deploy:pages && bun run deploy:workers",
+    "deploy:images": "cd apps/images && bun run deploy",
+    "deploy": "bun run deploy:pages && bun run deploy:workers && bun run deploy:images",
+    "migrate:images": "bun run scripts/migrate-images.ts",
+    "clean": "rm -rf node_modules apps/*/node_modules packages/*/node_modules bun.lockb apps/*/.vite apps/*/.wrangler && bun install",
     "lint": "biome check .",
     "lint:fix": "biome check --write . --unsafe",
     "format": "biome format --write .",
@@ -42,8 +48,8 @@
     "@tailwindcss/vite": "^4.1.17",
     "@types/bun": "latest",
     "@types/node": "^22.5.4",
-    "@types/react": "^19.2.6",
-    "@types/react-dom": "^19.2.3",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^5.1.1",
     "lefthook": "^2.0.4",
     "shadcn": "^3.5.0",
@@ -56,5 +62,10 @@
   },
   "peerDependencies": {
     "typescript": "^5"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.30.2"
   }
 }

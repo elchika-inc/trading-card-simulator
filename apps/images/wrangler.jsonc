@@ -1,0 +1,48 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "trading-card-images",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-07-18",
+  "compatibility_flags": ["nodejs_compat"],
+
+  // 開発サーバー設定
+  "dev": {
+    "port": 8788,
+    "inspector_port": 9230
+  },
+
+  // R2バインディング
+  "r2_buckets": [
+    {
+      "binding": "CARD_IMAGES",
+      "bucket_name": "trading-card-images"
+    }
+  ],
+
+  // CORS設定（開発環境でフロントエンドからのリクエストを許可）
+  "vars": {
+    "ALLOWED_ORIGINS": "http://localhost:5173,https://trading-card-simulator.pages.dev"
+  },
+
+  // 環境別設定
+  "env": {
+    "staging": {
+      "name": "trading-card-images-staging",
+      "r2_buckets": [
+        {
+          "binding": "CARD_IMAGES",
+          "bucket_name": "trading-card-images-staging"
+        }
+      ]
+    },
+    "production": {
+      "name": "trading-card-images",
+      "r2_buckets": [
+        {
+          "binding": "CARD_IMAGES",
+          "bucket_name": "trading-card-images-prod"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "@repo/images",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bunx wrangler dev",
+    "deploy": "bunx wrangler deploy"
+  },
+  "dependencies": {
+    "@repo/types": "workspace:*",
+    "hono": "^4.10.7"
+  }
+}

@@ -1,25 +1,58 @@
 {
   "$schema": "../../node_modules/wrangler/config-schema.json",
-  // Cloudflare Workers用設定 - Hono APIサーバー
-  "name": "hono-api-worker",
+  // Cloudflare Workers用設定 - Trading Card Simulator API
+  "name": "trading-card-simulator-api",
   "main": "src/index.ts",
-  "compatibility_date": "2025-09-02",
-  "compatibility_flags": ["nodejs_compat"]
-  // 環境変数（本番環境用）
-  // ローカル開発では .dev.vars を使用してください
-  // "vars": {
-  //   "APP_NAME": "Hono + React Template",
-  //   "APP_VERSION": "1.0.0",
-  //   "API_ENDPOINT": "https://api.yourdomain.com"
-  // },
-  // KV, R2, D1などのバインディング例
+  "compatibility_date": "2025-07-18",
+  "compatibility_flags": ["nodejs_compat"],
+
+  // 開発サーバー設定
+  "dev": {
+    "port": 8787,
+    "inspector_port": 9229
+  },
+
+  // 本番環境でのログとオブザーバビリティ設定
+  "logpush": true,
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1 // 開発中は100%、本番では0.5に調整推奨
+  },
+
+  // 環境別設定
+  "env": {
+    "staging": {
+      "name": "trading-card-simulator-api-staging",
+      "vars": {
+        "ENVIRONMENT": "staging"
+      },
+      "logpush": true,
+      "observability": {
+        "enabled": true,
+        "head_sampling_rate": 0.1
+      }
+    },
+    "production": {
+      "name": "trading-card-simulator-api",
+      "vars": {
+        "ENVIRONMENT": "production"
+      },
+      "logpush": true,
+      "observability": {
+        "enabled": true,
+        "head_sampling_rate": 0.5
+      }
+    }
+  }
+
+  // 将来的なバインディング例（必要に応じてコメント解除）
   // "kv_namespaces": [
-  //   { "binding": "MY_KV", "id": "your-kv-id" }
-  // ],
-  // "r2_buckets": [
-  //   { "binding": "MY_BUCKET", "bucket_name": "your-bucket-name" }
+  //   { "binding": "CARD_CACHE", "id": "your-kv-id" }
   // ],
   // "d1_databases": [
-  //   { "binding": "DB", "database_name": "your-db-name", "database_id": "your-db-id" }
+  //   { "binding": "DB", "database_name": "cards", "database_id": "your-db-id" }
+  // ],
+  // "r2_buckets": [
+  //   { "binding": "CARD_IMAGES", "bucket_name": "card-images" }
   // ]
 }
