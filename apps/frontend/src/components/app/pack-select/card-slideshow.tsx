@@ -1,6 +1,7 @@
 import type { Card } from "@repo/types";
 import { Info, Star } from "lucide-react";
 import { useEffect, useState } from "react";
+import { getImageUrl } from "@/lib/api-client";
 import { HoloCard } from "../holo-card";
 
 interface CardSlideshowProps {
@@ -20,6 +21,16 @@ export function CardSlideshow({
   const [currentIndex, setCurrentIndex] = useState(0);
   const [transitioning, setTransitioning] = useState(false);
   const [direction, setDirection] = useState(1);
+
+  // 画像の事前読み込み
+  useEffect(() => {
+    if (!cards || cards.length === 0) return;
+    // 全てのスライドショー画像を事前にロード
+    cards.forEach((card) => {
+      const img = new Image();
+      img.src = getImageUrl(card.image, { format: "webp" });
+    });
+  }, [cards]);
 
   // 自動スライド
   useEffect(() => {
@@ -50,7 +61,11 @@ export function CardSlideshow({
   if (!currentCard) return null;
 
   return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: カードスライドショーのクリック機能に必要
+    // biome-ignore lint/a11y/useSemanticElements: デザイン上の理由でdiv要素を使用
     <div
+      role="button"
+      tabIndex={onCardClick ? 0 : undefined}
       className="flex flex-col items-center bg-black/40 backdrop-blur-md rounded-2xl p-6 border border-white/10 shadow-2xl animate-[fadeIn_0.5s_ease-out] cursor-pointer hover:bg-black/50 transition-colors group relative"
       onClick={() => onCardClick?.(currentCard)}
       onKeyDown={(e) => e.key === "Enter" && onCardClick?.(currentCard)}
@@ -68,16 +83,22 @@ export function CardSlideshow({
 
       <div className="relative w-[300px] h-[420px] flex items-center justify-center mb-4">
         <div className="w-full h-full animate-float">
+          {/* 全カードをDOMに保持してopacityで制御 */}
           {cards.map((card, idx) => {
             const isCurrent = idx === currentIndex;
             const prevIndex = (currentIndex - direction + cards.length) % cards.length;
             const isPrev = idx === prevIndex;
 
-            if (!transitioning && !isCurrent) return null;
-            if (transitioning && !isCurrent && !isPrev) return null;
+            // アニメーション中でなく、かつ現在のカードでない場合は非表示
+            const shouldHide = !transitioning && !isCurrent;
+            // アニメーション中は、現在と直前以外は非表示
+            const shouldHideInTransition = transitioning && !isCurrent && !isPrev;
 
             let animClass = "";
-            if (transitioning) {
+            if (shouldHide || shouldHideInTransition) {
+              // 非表示状態（DOMには残すが見えなくする）
+              animClass = "opacity-0 pointer-events-none";
+            } else if (transitioning) {
               if (isCurrent) {
                 animClass = direction === 1 ? "card-anim-enter-right" : "card-anim-enter-left";
               } else if (isPrev) {

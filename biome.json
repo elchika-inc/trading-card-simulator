@@ -93,6 +93,23 @@
       "formatter": {
         "enabled": false
       }
+    },
+    {
+      "includes": ["**/*.stories.ts", "**/*.stories.tsx"],
+      "linter": {
+        "rules": {
+          "a11y": {
+            "noStaticElementInteractions": "off"
+          },
+          "correctness": {
+            "noUnusedVariables": "warn",
+            "noUnusedFunctionParameters": "off"
+          },
+          "suspicious": {
+            "noExplicitAny": "off"
+          }
+        }
+      }
     }
   ],
   "assist": {

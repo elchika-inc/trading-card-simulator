@@ -102,6 +102,23 @@ bun run storybook                 # http://localhost:6006
 bun run build-storybook           # Storybookビルド
 ```
 
+**利用可能なストーリー**:
+
+- **App Components**:
+  - `HoloCard` - ホログラフィックカードコンポーネント（60種類以上のエフェクト、レアリティ別表示）
+  - `CardGallery` - カードギャラリーコンポーネント（グリッドレイアウト、モーダル表示）
+  - `api-config-demo` - API設定デモ
+
+- **UI Components** (shadcn/ui):
+  - `Button` - ボタンコンポーネント（6種類のバリエーション、サイズ対応）
+  - `Card` - カードコンテナコンポーネント（フォーム、統計、プロフィールなど）
+  - `Badge` - バッジコンポーネント（ステータス、レアリティ表示）
+  - `Input` - 入力フィールドコンポーネント（各種type対応）
+  - `Alert` - アラートコンポーネント（成功、エラー、警告、情報）
+
+Storybookでは、各コンポーネントのバリエーション、インタラクション、使用例を確認できます。
+
+
 ### shadcn/uiコンポーネント追加
 
 **重要**: shadcn/ui コンポーネントを追加する際は、**必ず `apps/frontend` ディレクトリで実行**してください。

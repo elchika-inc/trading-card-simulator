@@ -82,6 +82,7 @@ export function HoloCard({ card, onClick, className = "", showCount = true }: Ho
     LucideIcons.Box) as React.ComponentType<{ className?: string }>;
 
   return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: カードのインタラクティブ機能に必要
     <div
       role={onClick ? "button" : "img"}
       tabIndex={onClick ? 0 : undefined}
@@ -99,6 +100,7 @@ export function HoloCard({ card, onClick, className = "", showCount = true }: Ho
           : undefined
       }
     >
+      {/* biome-ignore lint/a11y/noStaticElementInteractions: 3Dエフェクトのためのマウストラッキング */}
       <div
         ref={cardRef}
         role="presentation"
@@ -153,6 +155,8 @@ export function HoloCard({ card, onClick, className = "", showCount = true }: Ho
               src={getImageUrl(card.image, { format: "webp" })}
               alt={card.name}
               className="w-full h-full object-cover transform scale-105"
+              loading="eager"
+              decoding="async"
             />
             <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-gray-900 to-transparent" />
           </div>

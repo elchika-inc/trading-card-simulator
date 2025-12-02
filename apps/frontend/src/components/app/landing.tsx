@@ -2,6 +2,7 @@ import { ArrowRight, ChevronLeft, ChevronRight, Layers, Sparkles, Trophy } from 
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { featuredCards } from "@/data/featured-cards";
+import { getImageUrl } from "@/lib/api-client";
 import { HoloCard } from "./holo-card";
 import { MenuButton } from "./menu-button";
 import { ParticleBackground } from "./particle-background";
@@ -16,6 +17,15 @@ export function Landing() {
   const [isAutoPlay, setIsAutoPlay] = useState(true);
   const [transitioning, setTransitioning] = useState(false);
   const [direction, setDirection] = useState(1); // 1: next, -1: prev
+
+  // 画像の事前読み込み
+  useEffect(() => {
+    // 全てのカルーセル画像を事前にロード
+    featuredCards.forEach((card) => {
+      const img = new Image();
+      img.src = getImageUrl(card.image, { format: "webp" });
+    });
+  }, []);
 
   // 自動スライドショー
   useEffect(() => {
@@ -103,7 +113,7 @@ export function Landing() {
               <div className="relative w-[300px] h-[420px]">
                 {/* 浮遊アニメーション用のラッパー */}
                 <div className="w-full h-full animate-float">
-                  {/* カード展開 */}
+                  {/* カード展開 - 全カードをDOMに保持してopacityで制御 */}
                   {featuredCards.map((card, idx) => {
                     // 表示判定ロジック
                     const isCurrent = idx === currentIndex;
@@ -111,14 +121,17 @@ export function Landing() {
                       (currentIndex - direction + featuredCards.length) % featuredCards.length;
                     const isPrev = idx === prevIndex;
 
-                    // アニメーション中でなく、かつ現在のカードでないならレンダリングしない
-                    if (!transitioning && !isCurrent) return null;
-                    // アニメーション中は、現在と直前以外レンダリングしない
-                    if (transitioning && !isCurrent && !isPrev) return null;
+                    // アニメーション中でなく、かつ現在のカードでない場合は非表示
+                    const shouldHide = !transitioning && !isCurrent;
+                    // アニメーション中は、現在と直前以外は非表示
+                    const shouldHideInTransition = transitioning && !isCurrent && !isPrev;
 
                     // アニメーションクラスの決定
                     let animClass = "";
-                    if (transitioning) {
+                    if (shouldHide || shouldHideInTransition) {
+                      // 非表示状態（DOMには残すが見えなくする）
+                      animClass = "opacity-0 pointer-events-none";
+                    } else if (transitioning) {
                       if (isCurrent) {
                         animClass =
                           direction === 1 ? "card-anim-enter-right" : "card-anim-enter-left";
