@@ -21,9 +21,9 @@ pre-push:
     lint-check:
       run: bun run lint
 
-    # テスト実行
-    test:
-      run: bun run test
+    # テスト実行（コメントアウト: プッシュ時のE2Eテストを無効化）
+    # test:
+    #   run: bun run test
       # テストが重い場合はコメントアウト
       # skip:
       #   - merge

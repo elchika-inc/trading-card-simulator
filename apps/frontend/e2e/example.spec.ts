@@ -8,8 +8,12 @@ test("homepage displays correctly", async ({ page }) => {
   await expect(page.getByText("ギャラリー - GALLERY")).toBeVisible();
 
   // カルーセルナビゲーションボタンの確認
-  const prevButton = page.locator('button').filter({ has: page.locator('svg.lucide-chevron-left') });
-  const nextButton = page.locator('button').filter({ has: page.locator('svg.lucide-chevron-right') });
+  const prevButton = page
+    .locator("button")
+    .filter({ has: page.locator("svg.lucide-chevron-left") });
+  const nextButton = page
+    .locator("button")
+    .filter({ has: page.locator("svg.lucide-chevron-right") });
   await expect(prevButton).toBeVisible();
   await expect(nextButton).toBeVisible();
 

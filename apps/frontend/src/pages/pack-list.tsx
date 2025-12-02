@@ -72,7 +72,6 @@ export function PackList() {
             const zIndex = 100 - Math.abs(offset);
 
             return (
-              // biome-ignore lint/a11y/useSemanticElements: 3D変換のためdiv要素を使用
               <div
                 key={pack.id}
                 role="button"

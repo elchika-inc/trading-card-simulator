@@ -61,8 +61,6 @@ export function CardSlideshow({
   if (!currentCard) return null;
 
   return (
-    // biome-ignore lint/a11y/noStaticElementInteractions: カードスライドショーのクリック機能に必要
-    // biome-ignore lint/a11y/useSemanticElements: デザイン上の理由でdiv要素を使用
     <div
       role="button"
       tabIndex={onCardClick ? 0 : undefined}

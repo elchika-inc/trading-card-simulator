@@ -106,7 +106,7 @@ export class ImageTransformerContainer {
   // biome-ignore lint/complexity/noUselessConstructor: Required for Cloudflare Container
   constructor(_state: DurableObjectState, _env: Env) {}
 
-  async fetch(request: Request): Promise<Response> {
+  async fetch(_request: Request): Promise<Response> {
     // This will be handled by the container runtime
     return new Response("Container not configured", { status: 500 });
   }

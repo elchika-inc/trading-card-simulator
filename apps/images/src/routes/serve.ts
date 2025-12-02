@@ -18,7 +18,7 @@ export async function handleServe(c: Context<{ Bindings: Env }>): Promise<Respon
     // Try to find the image with common extensions
     const extensions = ["png", "jpg", "jpeg", "webp", "gif"];
     let object: R2ObjectBody | null = null;
-    let foundKey = "";
+    let _foundKey = "";
 
     const bucket = c.env.CARD_IMAGES;
     if (!bucket) {
@@ -29,7 +29,7 @@ export async function handleServe(c: Context<{ Bindings: Env }>): Promise<Respon
       const key = `images/${cleanId}.${ext}`;
       object = await getFromR2(bucket, key);
       if (object) {
-        foundKey = key;
+        _foundKey = key;
         break;
       }
     }

@@ -106,7 +106,6 @@ export function PackDetail() {
             </div>
 
             {/* 右側: パック本体 */}
-            {/* biome-ignore lint/a11y/useSemanticElements: 3D変換のためdiv要素を使用 */}
             <div
               role="button"
               tabIndex={0}

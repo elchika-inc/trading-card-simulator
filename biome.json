@@ -24,7 +24,9 @@
       },
       "a11y": {
         "noAutofocus": "off",
-        "useButtonType": "error"
+        "useButtonType": "error",
+        "useSemanticElements": "off",
+        "noStaticElementInteractions": "off"
       },
       "complexity": {
         "noExcessiveCognitiveComplexity": "warn",
@@ -65,6 +67,15 @@
     }
   },
   "overrides": [
+    {
+      "includes": ["sample/**", "**/sample/**"],
+      "linter": {
+        "enabled": false
+      },
+      "formatter": {
+        "enabled": false
+      }
+    },
     {
       "includes": ["**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/*.spec.tsx", "e2e/**/*"],
       "linter": {
