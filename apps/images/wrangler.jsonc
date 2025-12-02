@@ -19,15 +19,49 @@
     }
   ],
 
+  // Container設定
+  "containers": [
+    {
+      "class_name": "ImageTransformerContainer",
+      "image": "./container/Dockerfile",
+      "instance_type": "basic", // 1GB RAM, 1/4 vCPU
+      "max_instances": 5
+    }
+  ],
+
+  // Durable Object設定（Container用）
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "IMAGE_TRANSFORMER",
+        "class_name": "ImageTransformerContainer"
+      }
+    ]
+  },
+
+  // Migration設定（新規Durable Object用）
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["ImageTransformerContainer"]
+    }
+  ],
+
   // CORS設定（開発環境でフロントエンドからのリクエストを許可）
+  // ローカル開発時のDocker container URL
   "vars": {
-    "ALLOWED_ORIGINS": "http://localhost:5173,https://trading-card-simulator.pages.dev"
+    "ALLOWED_ORIGINS": "http://localhost:5173,http://localhost:5174,https://trading-card-simulator.pages.dev",
+    "IMAGE_TRANSFORMER_URL": "http://localhost:8090"
   },
 
   // 環境別設定
   "env": {
     "staging": {
       "name": "trading-card-images-staging",
+      "vars": {
+        "ALLOWED_ORIGINS": "https://staging.trading-card-simulator.pages.dev"
+        // IMAGE_TRANSFORMER_URL は本番では設定しない（Cloudflare Container使用）
+      },
       "r2_buckets": [
         {
           "binding": "CARD_IMAGES",
@@ -37,10 +71,22 @@
     },
     "production": {
       "name": "trading-card-images",
+      "vars": {
+        "ALLOWED_ORIGINS": "https://trading-card-simulator.pages.dev"
+        // IMAGE_TRANSFORMER_URL は本番では設定しない（Cloudflare Container使用）
+      },
       "r2_buckets": [
         {
           "binding": "CARD_IMAGES",
           "bucket_name": "trading-card-images-prod"
+        }
+      ],
+      "containers": [
+        {
+          "class_name": "ImageTransformerContainer",
+          "image": "./container/Dockerfile",
+          "instance_type": "basic",
+          "max_instances": 10
         }
       ]
     }

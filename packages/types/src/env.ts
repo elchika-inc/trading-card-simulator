@@ -134,6 +134,25 @@ export interface Env {
   // MY_DURABLE_OBJECT?: DurableObjectNamespace;
 
   /**
+   * Image Transformer Container (Cloudflare Container)
+   * @see https://developers.cloudflare.com/containers/
+   * @example
+   * // wrangler.jsonc (apps/images)
+   * "containers": [
+   *   {
+   *     "class_name": "ImageTransformerContainer",
+   *     "image": "./container/Dockerfile"
+   *   }
+   * ],
+   * "durable_objects": {
+   *   "bindings": [
+   *     { "name": "IMAGE_TRANSFORMER", "class_name": "ImageTransformerContainer" }
+   *   ]
+   * }
+   */
+  IMAGE_TRANSFORMER?: DurableObjectNamespace;
+
+  /**
    * Events Queue（ドメインイベント用）
    * @see https://developers.cloudflare.com/queues/
    * @example

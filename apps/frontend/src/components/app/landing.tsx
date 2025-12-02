@@ -83,7 +83,7 @@ export function Landing() {
                 PICK UP
               </span>
               <h2 className="text-2xl font-bold text-white drop-shadow-lg h-8">
-                {featuredCards[currentIndex].name}
+                {featuredCards[currentIndex]?.name}
               </h2>
             </div>
 
@@ -181,7 +181,7 @@ export function Landing() {
               新パック「虚空の覇者」登場
             </h2>
             <p className="text-gray-400 text-sm font-light">
-              {featuredCards[currentIndex].name} などの強力なカードを手に入れよう！
+              {featuredCards[currentIndex]?.name} などの強力なカードを手に入れよう！
             </p>
           </div>
         </div>
@@ -193,7 +193,6 @@ export function Landing() {
             title="召喚 - SUMMON"
             subtitle="新たな力を手に入れろ"
             icon={<Sparkles className="w-8 h-8" />}
-            gradient="from-pink-600 via-purple-600 to-indigo-600"
             active
             onClick={() => navigate("/packs")}
           />
@@ -203,7 +202,6 @@ export function Landing() {
             title="ギャラリー - GALLERY"
             subtitle="獲得したカードを確認"
             icon={<Layers className="w-8 h-8" />}
-            gradient="from-gray-800 to-gray-900"
             onClick={() => navigate("/gallery")}
           />
 

@@ -1,6 +1,7 @@
 import type { Card } from "@repo/types";
 import { ArrowLeft, RefreshCcw, Sparkles } from "lucide-react";
 import { useRef, useState } from "react";
+import { PageLayout } from "@/components/app/page-layout";
 import { cssAnimations } from "./animations";
 import { clamp } from "./constants";
 import { PackIdle } from "./pack-idle";
@@ -9,7 +10,7 @@ import { PackResults } from "./pack-results";
 
 interface PackOpeningProps {
   cards: Card[];
-  packImage: string;
+  packType: string;
   backImage?: string | null;
   onReset: () => void;
 }
@@ -17,7 +18,7 @@ interface PackOpeningProps {
 /**
  * パック開封メインコンポーネント
  */
-export function PackOpening({ cards, packImage, backImage = null, onReset }: PackOpeningProps) {
+export function PackOpening({ cards, packType, backImage = null, onReset }: PackOpeningProps) {
   const [gameState, setGameState] = useState<
     "idle" | "tearing" | "opening" | "inspecting" | "results"
   >("idle");
@@ -71,8 +72,14 @@ export function PackOpening({ cards, packImage, backImage = null, onReset }: Pac
   const onMouseDown = (e: React.MouseEvent) => handleStart(e.clientX);
   const onMouseMove = (e: React.MouseEvent) => handleMove(e.clientX);
   const onMouseUp = handleEnd;
-  const onTouchStart = (e: React.TouchEvent) => handleStart(e.touches[0].clientX);
-  const onTouchMove = (e: React.TouchEvent) => handleMove(e.touches[0].clientX);
+  const onTouchStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    if (touch) handleStart(touch.clientX);
+  };
+  const onTouchMove = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    if (touch) handleMove(touch.clientX);
+  };
   const onTouchEnd = handleEnd;
 
   const finishTearing = () => {
@@ -130,86 +137,87 @@ export function PackOpening({ cards, packImage, backImage = null, onReset }: Pac
   };
 
   return (
-    <div
-      role="application"
-      aria-label="パック開封ゲーム"
-      className="min-h-screen bg-slate-900 flex flex-col items-center justify-center overflow-hidden font-sans select-none relative"
-      onMouseUp={onMouseUp}
-      onMouseLeave={onMouseUp}
-      onTouchEnd={onTouchEnd}
-    >
-      {/* グローバルCSSアニメーションを注入 */}
-      {/* biome-ignore lint/security/noDangerouslySetInnerHtml: CSSアニメーション定義のため必要 */}
-      <style dangerouslySetInnerHTML={{ __html: cssAnimations }} />
+    <PageLayout>
+      <div
+        role="application"
+        aria-label="パック開封ゲーム"
+        className="min-h-screen flex flex-col items-center justify-center select-none relative"
+        onMouseUp={onMouseUp}
+        onMouseLeave={onMouseUp}
+        onTouchEnd={onTouchEnd}
+      >
+        {/* グローバルCSSアニメーションを注入 */}
+        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: CSSアニメーション定義のため必要 */}
+        <style dangerouslySetInnerHTML={{ __html: cssAnimations }} />
 
-      {/* 背景エフェクト */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div
-          className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blue-500/20 rounded-full blur-[120px] transition-all duration-1000 ${
-            gameState === "opening" ? "scale-150 bg-white/40" : "scale-100"
-          }`}
-        />
-        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10" />
+        {/* 追加の背景エフェクト（パック開封時のフラッシュ） */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden z-20">
+          <div
+            className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-purple-500/20 rounded-full blur-[120px] transition-all duration-1000 ${
+              gameState === "opening" ? "scale-150 bg-white/40" : "scale-100"
+            }`}
+          />
+        </div>
+
+        <div className="absolute top-0 left-0 right-0 p-6 flex justify-between items-center z-50">
+          {/* 左側: パック選択に戻るボタン */}
+          <button
+            onClick={handleReset}
+            type="button"
+            className="flex items-center gap-2 text-white/80 hover:text-white transition-colors bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full backdrop-blur-sm"
+            title="パック選択に戻る"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span className="text-sm font-bold">パック選択</span>
+          </button>
+
+          {/* 中央: タイトル */}
+          <h1 className="absolute left-1/2 -translate-x-1/2 text-white text-xl font-bold tracking-wider opacity-80 flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-yellow-400" />
+            PACK OPENER
+          </h1>
+
+          {/* 右側: リセットボタン */}
+          <button
+            onClick={handleReset}
+            type="button"
+            className="p-2 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors backdrop-blur-sm"
+            title="リセット"
+          >
+            <RefreshCcw className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="relative w-full max-w-lg h-[600px] flex items-center justify-center perspective-[1200px]">
+          {/* パック表示 (未開封時) */}
+          <PackIdle
+            packRef={packRef}
+            gameState={gameState}
+            tearProgress={tearProgress}
+            packType={packType}
+            isDragging={isDragging}
+            onMouseDown={onMouseDown}
+            onMouseMove={onMouseMove}
+            onTouchStart={onTouchStart}
+            onTouchMove={onTouchMove}
+          />
+
+          {/* 1枚ずつ確認モード */}
+          <PackInspecting
+            gameState={gameState}
+            cards={cards}
+            currentCardIndex={currentCardIndex}
+            isCardFlipped={isCardFlipped}
+            isTransitioning={isTransitioning}
+            backImage={backImage}
+            onCardClick={handleCardClick}
+            onSkipToResults={handleSkipToResults}
+          />
+
+          {/* 結果一覧モード */}
+          <PackResults gameState={gameState} cards={cards} onReset={handleReset} />
+        </div>
       </div>
-
-      <div className="absolute top-0 left-0 right-0 p-6 flex justify-between items-center z-50">
-        {/* 左側: パック選択に戻るボタン */}
-        <button
-          onClick={handleReset}
-          type="button"
-          className="flex items-center gap-2 text-white/80 hover:text-white transition-colors bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full backdrop-blur-sm"
-          title="パック選択に戻る"
-        >
-          <ArrowLeft className="w-5 h-5" />
-          <span className="text-sm font-bold">パック選択</span>
-        </button>
-
-        {/* 中央: タイトル */}
-        <h1 className="absolute left-1/2 -translate-x-1/2 text-white text-xl font-bold tracking-wider opacity-80 flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-yellow-400" />
-          PACK OPENER
-        </h1>
-
-        {/* 右側: リセットボタン */}
-        <button
-          onClick={handleReset}
-          type="button"
-          className="p-2 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors backdrop-blur-sm"
-          title="リセット"
-        >
-          <RefreshCcw className="w-5 h-5" />
-        </button>
-      </div>
-
-      <div className="relative w-full max-w-lg h-[600px] flex items-center justify-center perspective-[1200px]">
-        {/* パック表示 (未開封時) */}
-        <PackIdle
-          packRef={packRef}
-          gameState={gameState}
-          tearProgress={tearProgress}
-          packImage={packImage}
-          isDragging={isDragging}
-          onMouseDown={onMouseDown}
-          onMouseMove={onMouseMove}
-          onTouchStart={onTouchStart}
-          onTouchMove={onTouchMove}
-        />
-
-        {/* 1枚ずつ確認モード */}
-        <PackInspecting
-          gameState={gameState}
-          cards={cards}
-          currentCardIndex={currentCardIndex}
-          isCardFlipped={isCardFlipped}
-          isTransitioning={isTransitioning}
-          backImage={backImage}
-          onCardClick={handleCardClick}
-          onSkipToResults={handleSkipToResults}
-        />
-
-        {/* 結果一覧モード */}
-        <PackResults gameState={gameState} cards={cards} onReset={handleReset} />
-      </div>
-    </div>
+    </PageLayout>
   );
 }

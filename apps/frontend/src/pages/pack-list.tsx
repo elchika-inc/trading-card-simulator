@@ -1,8 +1,9 @@
-import { ChevronLeft, ChevronRight, Coins, Layers } from "lucide-react";
+import { ChevronLeft, ChevronRight, Coins, Home, Layers } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { CoinDisplay } from "@/components/app/pack-select/coin-display";
 import { PackVisual } from "@/components/app/pack-select/pack-visual";
+import { PageLayout } from "@/components/app/page-layout";
 import { useUser } from "@/contexts/user-context";
 import { PACK_TYPES } from "@/data/pack-types";
 
@@ -28,12 +29,21 @@ export function PackList() {
   };
 
   return (
-    <>
+    <PageLayout>
       <CoinDisplay amount={coins} />
 
-      <div className="min-h-screen bg-zinc-900 text-white flex flex-col items-center justify-center font-sans select-none overflow-hidden relative">
-        {/* 背景の装飾 */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-zinc-800 via-zinc-900 to-black z-0" />
+      <div className="min-h-screen flex flex-col items-center justify-center select-none relative">
+        {/* トップページに戻るボタン */}
+        <div className="absolute top-0 left-0 right-0 p-6 flex justify-start items-center z-20">
+          <button
+            onClick={() => navigate("/")}
+            className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors bg-black/30 px-4 py-2 rounded-full backdrop-blur-md border border-white/10"
+            type="button"
+          >
+            <Home size={20} />
+            <span className="text-sm font-bold">トップに戻る</span>
+          </button>
+        </div>
 
         <header
           className="absolute top-12 left-0 right-0 text-center space-y-3 z-20"
@@ -167,6 +177,6 @@ export function PackList() {
           </button>
         </div>
       </div>
-    </>
+    </PageLayout>
   );
 }

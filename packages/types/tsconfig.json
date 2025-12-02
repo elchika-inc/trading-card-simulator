@@ -4,6 +4,10 @@
     "composite": true,
     "outDir": "./dist",
     "rootDir": "./src",
+    "declaration": true,
+    "declarationMap": true,
+    "emitDeclarationOnly": true,
+    "noEmit": false,
     "types": ["@cloudflare/workers-types"]
   },
   "include": ["src/**/*"]

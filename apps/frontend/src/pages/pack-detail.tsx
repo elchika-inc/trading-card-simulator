@@ -7,6 +7,7 @@ import { CardDetailModal } from "@/components/app/pack-select/card-detail-modal"
 import { CardSlideshow } from "@/components/app/pack-select/card-slideshow";
 import { CoinDisplay } from "@/components/app/pack-select/coin-display";
 import { PackVisual } from "@/components/app/pack-select/pack-visual";
+import { PageLayout } from "@/components/app/page-layout";
 import { useUser } from "@/contexts/user-context";
 import { PACK_TYPES } from "@/data/pack-types";
 
@@ -25,18 +26,20 @@ export function PackDetail() {
 
   if (!packData) {
     return (
-      <div className="min-h-screen bg-zinc-950 text-white flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <p className="text-red-400">パックが見つかりません</p>
-          <button
-            type="button"
-            onClick={() => navigate("/packs")}
-            className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
-          >
-            パック一覧に戻る
-          </button>
+      <PageLayout>
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center space-y-4">
+            <p className="text-red-400">パックが見つかりません</p>
+            <button
+              type="button"
+              onClick={() => navigate("/packs")}
+              className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+            >
+              パック一覧に戻る
+            </button>
+          </div>
         </div>
-      </div>
+      </PageLayout>
     );
   }
 
@@ -51,7 +54,7 @@ export function PackDetail() {
   };
 
   return (
-    <>
+    <PageLayout>
       <CoinDisplay amount={coins} />
 
       {selectedCardForModal && (
@@ -62,12 +65,7 @@ export function PackDetail() {
         />
       )}
 
-      <div className="min-h-screen bg-zinc-950 text-white flex flex-col items-center justify-center relative overflow-hidden font-sans">
-        {/* 背景装飾 */}
-        <div
-          className={`absolute inset-0 bg-gradient-to-b ${packData.colorFrom} to-zinc-950 opacity-20 z-0`}
-        />
-
+      <div className="min-h-screen flex flex-col items-center justify-center relative">
         {/* ヘッダー */}
         <div className="absolute top-0 left-0 right-0 p-6 flex justify-between items-center z-20">
           <button
@@ -116,13 +114,13 @@ export function PackDetail() {
               onClick={() => setIsRotating(!isRotating)}
               onKeyDown={(e) => e.key === "Enter" && setIsRotating(!isRotating)}
             >
-              <PackVisual type={packId} isSelected={true} showBack={isRotating} isHovered={false} />
+              <PackVisual type={packData.id} isSelected={true} showBack={isRotating} isHovered={false} />
               <div
                 className={`absolute top-full left-0 right-0 h-20 transform scale-y-[-1] opacity-20 pointer-events-none reflection-mask transition-opacity duration-300 ${
                   isRotating ? "opacity-5" : "opacity-20"
                 }`}
               >
-                <PackVisual type={packId} isSelected={false} showBack={false} isHovered={false} />
+                <PackVisual type={packData.id} isSelected={false} showBack={false} isHovered={false} />
               </div>
 
               <div className="mt-8 text-center text-xs text-zinc-400 flex items-center justify-center gap-1 opacity-70 group-hover:opacity-100 transition-opacity bg-black/50 rounded-full px-3 py-1 backdrop-blur-sm border border-white/10">
@@ -172,6 +170,6 @@ export function PackDetail() {
           </div>
         </div>
       </div>
-    </>
+    </PageLayout>
   );
 }

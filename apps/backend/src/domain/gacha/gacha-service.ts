@@ -54,6 +54,7 @@ export class GachaService {
     }
 
     // フォールバック（理論上は到達しない）
-    return rates[rates.length - 1].getCardId();
+    // biome-ignore lint/style/noNonNullAssertion: rates.length > 0 は呼び出し元で保証
+    return rates[rates.length - 1]!.getCardId();
   }
 }

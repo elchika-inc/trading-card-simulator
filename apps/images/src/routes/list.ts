@@ -28,7 +28,7 @@ export async function handleList(c: Context<{ Bindings: Env }>): Promise<Respons
 
     // ImageMetadataに変換
     const baseUrl = new URL(c.req.url).origin;
-    const images = result.objects.map((obj) => r2ObjectToImageMetadata(obj as R2Object, baseUrl));
+    const images = result.objects.map((obj) => r2ObjectToImageMetadata(obj, baseUrl));
 
     const response: ImageListResponse = {
       success: true,

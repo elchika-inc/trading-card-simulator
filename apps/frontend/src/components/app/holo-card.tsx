@@ -6,6 +6,7 @@
 import type { Card } from "@repo/types";
 import * as LucideIcons from "lucide-react";
 import { useCallback, useRef, useState } from "react";
+import { getImageUrl } from "@/lib/api-client";
 import { getHoloStyle, getTextStyle } from "@/lib/card-styles";
 
 interface HoloCardProps {
@@ -67,8 +68,10 @@ export function HoloCard({ card, onClick, className = "", showCount = true }: Ho
 
   // イベントハンドラ
   const handleMouseMove = (e: React.MouseEvent) => updateCardState(e.clientX, e.clientY);
-  const handleTouchMove = (e: React.TouchEvent) =>
-    updateCardState(e.touches[0].clientX, e.touches[0].clientY);
+  const handleTouchMove = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    if (touch) updateCardState(touch.clientX, touch.clientY);
+  };
 
   // スタイル計算 - ホバー状態を渡す
   const holoStyle = getHoloStyle(card.holoType, state.background, state.isHovering);
@@ -104,7 +107,10 @@ export function HoloCard({ card, onClick, className = "", showCount = true }: Ho
         onMouseEnter={() => setState((s) => ({ ...s, isHovering: true }))}
         onMouseLeave={resetCardState}
         // タッチイベント
-        onTouchStart={(e) => updateCardState(e.touches[0].clientX, e.touches[0].clientY)}
+        onTouchStart={(e) => {
+          const touch = e.touches[0];
+          if (touch) updateCardState(touch.clientX, touch.clientY);
+        }}
         onTouchMove={handleTouchMove}
         onTouchEnd={resetCardState}
         onTouchCancel={resetCardState}
@@ -144,7 +150,7 @@ export function HoloCard({ card, onClick, className = "", showCount = true }: Ho
           {/* 画像 */}
           <div className="w-full aspect-square relative overflow-hidden bg-black">
             <img
-              src={card.image}
+              src={getImageUrl(card.image, { format: "webp" })}
               alt={card.name}
               className="w-full h-full object-cover transform scale-105"
             />

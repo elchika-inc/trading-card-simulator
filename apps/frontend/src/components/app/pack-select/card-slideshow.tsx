@@ -6,7 +6,7 @@ import { HoloCard } from "../holo-card";
 interface CardSlideshowProps {
   cards: Card[];
   onCardClick?: (card: Card) => void;
-  CardComponent?: React.ComponentType<{ card: Card }>;
+  CardComponent?: React.ComponentType<{ card: Card; className?: string; showCount?: boolean }>;
 }
 
 /**
@@ -47,12 +47,13 @@ export function CardSlideshow({
   if (!cards || cards.length === 0) return null;
 
   const currentCard = cards[currentIndex];
+  if (!currentCard) return null;
 
   return (
     <div
       className="flex flex-col items-center bg-black/40 backdrop-blur-md rounded-2xl p-6 border border-white/10 shadow-2xl animate-[fadeIn_0.5s_ease-out] cursor-pointer hover:bg-black/50 transition-colors group relative"
       onClick={() => onCardClick?.(currentCard)}
-      onKeyDown={(e) => e.key === "Enter" && onCardClick && onCardClick(currentCard)}
+      onKeyDown={(e) => e.key === "Enter" && onCardClick?.(currentCard)}
     >
       <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
         <div className="bg-white/20 p-1 rounded-full text-white">
@@ -102,7 +103,7 @@ export function CardSlideshow({
         <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 rounded-full">
           <span
             className={`text-xs font-bold ${
-              currentCard.rarity === "SR" ? "text-yellow-400" : "text-zinc-300"
+              currentCard.rarity === "hot" ? "text-yellow-400" : "text-zinc-300"
             }`}
           >
             Rarity: {currentCard.rarity}

@@ -52,7 +52,7 @@ export function CardDetailModal({ card, onClose, CardComponent = HoloCard }: Car
           <div className="flex items-center justify-center gap-2 mb-2">
             <span
               className={`text-sm font-bold px-2 py-0.5 rounded ${
-                card.rarity === "SR"
+                card.rarity === "hot"
                   ? "bg-yellow-500/20 text-yellow-400"
                   : "bg-zinc-700 text-zinc-300"
               }`}

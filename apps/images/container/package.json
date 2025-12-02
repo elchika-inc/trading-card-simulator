@@ -1,0 +1,13 @@
+{
+  "name": "image-transformer",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "dependencies": {
+    "sharp": "^0.33.5"
+  }
+}

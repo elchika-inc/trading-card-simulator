@@ -36,7 +36,7 @@ export function PackOpeningPage() {
   return (
     <PackOpening
       cards={packData.featuredCards}
-      packImage={packData.image || ""}
+      packType={packData.id}
       backImage={null}
       onReset={handleReset}
     />

@@ -14,14 +14,16 @@ interface PackVisualProps {
  */
 export const PackVisual = React.memo<PackVisualProps>(
   ({ type, isHovered = false, isSelected = false, showBack = false }) => {
-    const packData = PACK_TYPES.find((p) => p.id === type) || PACK_TYPES[0];
+    const packData = PACK_TYPES.find((p) => p.id === type) ?? PACK_TYPES[0];
+    if (!packData) return null;
+
     const hasImage = !!packData.image;
 
     const texts = {
-      subTitle: packData.subTitle || "Trading Card Game",
-      contentsInfo: packData.contentsInfo || "1パック / 5枚入り",
-      backTitle: packData.backTitle || "PACK INFO",
-      featureTitle: packData.featureTitle || "Pickup Feature",
+      subTitle: packData.subTitle ?? "Trading Card Game",
+      contentsInfo: packData.contentsInfo ?? "1パック / 5枚入り",
+      backTitle: packData.backTitle ?? "PACK INFO",
+      featureTitle: packData.featureTitle ?? "Pickup Feature",
     };
 
     return (
@@ -46,7 +48,7 @@ export const PackVisual = React.memo<PackVisualProps>(
           }}
         >
           {/* --- 画像表示モード --- */}
-          {hasImage && (
+          {hasImage && packData.image && (
             <img
               src={packData.image}
               alt={packData.name}

@@ -6,21 +6,38 @@
 import type { Card } from "@repo/types";
 
 /**
- * 利用可能な画像のファイル名（public/assets/内）
+ * 利用可能な画像のファイル名（R2 images/ プレフィックス内）
+ * ファイル名形式: {packId}-{rarity}-{cardNumber}_{originalName}.{ext}
+ * フロントエンドで VITE_IMAGES_API_URL と結合してアクセス
  */
 const CARD_IMAGE_FILES = [
+  // Pack 1 (dragon-flame)
   "1-1-1_Gemini_Generated_Image_mucfs2mucfs2mucf.png",
   "1-1-2_Gemini_Generated_Image_n0ze78n0ze78n0ze.png",
   "1-1-3_Gemini_Generated_Image_3sdvmb3sdvmb3sdv.png",
+  // Pack 2 (ocean-depths)
+  "2-1-1_Gemini_Generated_Image_ubst2lubst2lubst.png",
+  "2-1-2_Gemini_Generated_Image_vwrhg5vwrhg5vwrh.png",
+  "2-1-3_unnamed.jpg",
+  // Pack 3 (thunder-spark)
+  "3-1-1_Gemini_Generated_Image_zcoszszcoszszcos.png",
+  "3-1-2_Gemini_Generated_Image_wi84g1wi84g1wi84.png",
+  "3-1-3_Gemini_Generated_Image_clfqnzclfqnzclfq.png",
+  // Pack 4
+  "4-1-1_Gemini_Generated_Image_m1suo4m1suo4m1su.png",
+  "4-1-2_Gemini_Generated_Image_eh2apbeh2apbeh2a.png",
+  // Pack 5
+  "5-1-1_Gemini_Generated_Image_coi7hbcoi7hbcoi7.png",
+  "5-1-2_Gemini_Generated_Image_qtornhqtornhqtor.png",
 ];
 
 /**
- * カードIDに基づいて画像URLを生成
+ * カードIDに基づいて画像ファイル名を取得
+ * フロントエンドで getImageUrl() と組み合わせて使用
  */
 const getCardImage = (id: number): string => {
   const imageFile = CARD_IMAGE_FILES[(id - 1) % CARD_IMAGE_FILES.length];
-  // 静的ファイルとして提供
-  return `/assets/${imageFile}`;
+  return imageFile;
 };
 
 /**

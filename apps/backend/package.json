@@ -4,6 +4,14 @@
   "private": true,
   "type": "module",
   "main": "src/index.ts",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
   "scripts": {
     "dev": "bunx wrangler dev --config wrangler.jsonc",
     "deploy": "bunx wrangler deploy --config wrangler.jsonc"

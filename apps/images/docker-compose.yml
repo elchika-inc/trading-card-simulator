@@ -1,0 +1,23 @@
+# Local development environment for image transformer
+# Use this when wrangler dev doesn't support containers locally
+
+services:
+  image-transformer:
+    build:
+      context: ./container
+      dockerfile: Dockerfile
+    ports:
+      - "8090:8080"
+    environment:
+      - PORT=8080
+      - NODE_ENV=development
+    volumes:
+      # Mount source for hot reload (dev only)
+      - ./container/src:/app/src:ro
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    restart: unless-stopped

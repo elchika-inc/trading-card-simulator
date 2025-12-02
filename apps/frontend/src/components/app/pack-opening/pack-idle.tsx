@@ -1,17 +1,84 @@
 import { ChevronsRight, Hand } from "lucide-react";
 import type React from "react";
-import { FALLBACK_GRADIENT } from "./constants";
+import { PACK_TYPES } from "@/data/pack-types";
 
 interface PackIdleProps {
   packRef: React.RefObject<HTMLDivElement>;
   gameState: string;
   tearProgress: number;
-  packImage: string;
+  packType: string;
   isDragging: React.MutableRefObject<boolean>;
   onMouseDown: (e: React.MouseEvent) => void;
   onMouseMove: (e: React.MouseEvent) => void;
   onTouchStart: (e: React.TouchEvent) => void;
   onTouchMove: (e: React.TouchEvent) => void;
+}
+
+/**
+ * パックのコンテンツ部分（画像 or CSS生成）
+ */
+function PackContent({ packType, className }: { packType: string; className?: string }) {
+  const packData = PACK_TYPES.find((p) => p.id === packType) ?? PACK_TYPES[0];
+  if (!packData) return null;
+
+  const hasImage = !!packData.image;
+
+  const texts = {
+    subTitle: packData.subTitle ?? "Trading Card Game",
+    contentsInfo: packData.contentsInfo ?? "1パック / 5枚入り",
+  };
+
+  if (hasImage) {
+    return (
+      <div className={`w-full h-full bg-slate-800 relative ${className}`}>
+        <img
+          src={packData.image ?? undefined}
+          alt={packData.name}
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/10 to-white/30 pointer-events-none mix-blend-overlay" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/0 via-black/0 to-black/60 pointer-events-none" />
+      </div>
+    );
+  }
+
+  // CSS生成モード（PackVisualと同様）
+  return (
+    <div
+      className={`w-full h-full relative bg-gradient-to-br ${packData?.colorFrom ?? ""} ${packData?.colorTo ?? ""} flex flex-col items-center justify-between overflow-hidden ${className ?? ""}`}
+    >
+      <div className="absolute inset-0 border-t-4 border-b-4 border-gray-200/50 pointer-events-none z-10" />
+      <div className="absolute top-0 left-0 right-0 h-3 bg-gradient-to-r from-gray-300 to-gray-100 opacity-50 z-10" />
+
+      <div className="mt-6 text-white/90 text-sm font-bold tracking-widest uppercase text-center border-b border-white/30 pb-1 z-10 relative px-4">
+        {texts.subTitle}
+      </div>
+
+      <div className="flex flex-col items-center justify-center flex-1 w-full relative z-10">
+        <div className="text-9xl filter drop-shadow-xl transform transition-transform duration-500">
+          {packData.icon}
+        </div>
+        <h3 className="text-white text-3xl font-black text-center mt-4 leading-tight drop-shadow-md px-2">
+          {packData.name}
+        </h3>
+      </div>
+
+      <div className="w-full relative z-10 pb-6 px-6">
+        <div className="bg-black/20 rounded-full px-3 py-1">
+          <p className="text-white/80 text-xs text-center font-medium">
+            {texts.contentsInfo}
+          </p>
+        </div>
+      </div>
+
+      <div className="absolute bottom-0 left-0 right-0 h-3 bg-gradient-to-r from-gray-300 to-gray-100 opacity-50 z-10" />
+      <div className="absolute inset-0 opacity-30 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] mix-blend-multiply z-0" />
+
+      {/* 共通エフェクト */}
+      <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-500 pointer-events-none mix-blend-overlay z-20" />
+      <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent pointer-events-none z-20" />
+    </div>
+  );
 }
 
 /**
@@ -21,7 +88,7 @@ export function PackIdle({
   packRef,
   gameState,
   tearProgress,
-  packImage,
+  packType,
   isDragging,
   onMouseDown,
   onMouseMove,
@@ -52,19 +119,7 @@ export function PackIdle({
             "polygon(0% 0%, 0% 70px, 10% 60px, 20% 70px, 30% 60px, 40% 70px, 50% 60px, 60% 70px, 70% 60px, 80% 70px, 90% 60px, 100% 70px, 100% 100%, 0% 100%)",
         }}
       >
-        <div className="w-full h-full bg-slate-800 relative">
-          <img
-            src={packImage}
-            alt="Pack Main"
-            className="w-full h-full object-cover"
-            onError={(e) => {
-              e.currentTarget.style.display = "none";
-            }}
-          />
-          <div className="absolute inset-0 -z-10" style={{ background: FALLBACK_GRADIENT }} />
-          <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/10 to-white/30 pointer-events-none mix-blend-overlay" />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/0 via-black/0 to-black/60 pointer-events-none" />
-        </div>
+        <PackContent packType={packType} />
       </div>
 
       <div
@@ -81,16 +136,7 @@ export function PackIdle({
         }}
       >
         <div className="w-full h-[440px] relative -top-[0px]">
-          <img
-            src={packImage}
-            alt="Pack Top"
-            className="w-full h-full object-cover"
-            onError={(e) => {
-              e.currentTarget.style.display = "none";
-            }}
-          />
-          <div className="absolute inset-0 -z-10" style={{ background: FALLBACK_GRADIENT }} />
-          <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/20 to-white/40 pointer-events-none mix-blend-overlay" />
+          <PackContent packType={packType} />
         </div>
 
         {gameState === "idle" && tearProgress < 0.1 && (

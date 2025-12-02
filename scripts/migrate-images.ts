@@ -7,7 +7,7 @@ import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 
 const IMAGE_API_URL = "http://localhost:8788";
-const PUBLIC_DIR = "./apps/frontend/public/assets";
+const PUBLIC_DIR = "./public/assets";
 
 async function migrateImages() {
   console.log("🚀 Starting image migration...\n");
