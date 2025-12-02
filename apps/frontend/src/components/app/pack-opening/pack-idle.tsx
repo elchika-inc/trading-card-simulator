@@ -65,9 +65,7 @@ function PackContent({ packType, className }: { packType: string; className?: st
 
       <div className="w-full relative z-10 pb-6 px-6">
         <div className="bg-black/20 rounded-full px-3 py-1">
-          <p className="text-white/80 text-xs text-center font-medium">
-            {texts.contentsInfo}
-          </p>
+          <p className="text-white/80 text-xs text-center font-medium">{texts.contentsInfo}</p>
         </div>
       </div>
 

@@ -28,7 +28,7 @@ export async function transformImageLocal(
     width?: number;
     height?: number;
     quality?: number;
-  } = {}
+  } = {},
 ): Promise<ArrayBuffer> {
   const params = new URLSearchParams();
   if (options.width) params.set("width", options.width.toString());
@@ -66,7 +66,7 @@ export async function transformImage(
     width?: number;
     height?: number;
     quality?: number;
-  } = {}
+  } = {},
 ): Promise<ArrayBuffer> {
   const params = new URLSearchParams();
   if (options.width) params.set("width", options.width.toString());

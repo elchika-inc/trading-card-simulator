@@ -114,13 +114,23 @@ export function PackDetail() {
               onClick={() => setIsRotating(!isRotating)}
               onKeyDown={(e) => e.key === "Enter" && setIsRotating(!isRotating)}
             >
-              <PackVisual type={packData.id} isSelected={true} showBack={isRotating} isHovered={false} />
+              <PackVisual
+                type={packData.id}
+                isSelected={true}
+                showBack={isRotating}
+                isHovered={false}
+              />
               <div
                 className={`absolute top-full left-0 right-0 h-20 transform scale-y-[-1] opacity-20 pointer-events-none reflection-mask transition-opacity duration-300 ${
                   isRotating ? "opacity-5" : "opacity-20"
                 }`}
               >
-                <PackVisual type={packData.id} isSelected={false} showBack={false} isHovered={false} />
+                <PackVisual
+                  type={packData.id}
+                  isSelected={false}
+                  showBack={false}
+                  isHovered={false}
+                />
               </div>
 
               <div className="mt-8 text-center text-xs text-zinc-400 flex items-center justify-center gap-1 opacity-70 group-hover:opacity-100 transition-opacity bg-black/50 rounded-full px-3 py-1 backdrop-blur-sm border border-white/10">

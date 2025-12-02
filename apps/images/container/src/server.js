@@ -113,7 +113,7 @@ async function handleRequest(req, res) {
         JSON.stringify({
           error: "Failed to transform image",
           message: error.message,
-        })
+        }),
       );
     }
     return;
@@ -133,7 +133,7 @@ async function handleRequest(req, res) {
           height: metadata.height,
           size: imageBuffer.length,
           hasAlpha: metadata.hasAlpha,
-        })
+        }),
       );
     } catch (error) {
       res.writeHead(500, { "Content-Type": "application/json" });
@@ -152,7 +152,7 @@ async function handleRequest(req, res) {
         transform: "POST /transform?width=&height=&quality=",
         info: "POST /info",
       },
-    })
+    }),
   );
 }
 

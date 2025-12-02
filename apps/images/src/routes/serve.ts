@@ -6,8 +6,8 @@
 
 import type { Context } from "hono";
 import type { Env } from "../container";
-import { getFromR2 } from "../lib/r2";
 import { transformImage, transformImageLocal } from "../container";
+import { getFromR2 } from "../lib/r2";
 
 export async function handleServe(c: Context<{ Bindings: Env }>): Promise<Response> {
   try {
@@ -53,17 +53,16 @@ export async function handleServe(c: Context<{ Bindings: Env }>): Promise<Respon
     if (shouldTransform && c.env.IMAGE_TRANSFORMER_URL) {
       // Local development: use Docker container directly
       const imageBuffer = await object.arrayBuffer();
-      responseBody = await transformImageLocal(
-        c.env.IMAGE_TRANSFORMER_URL,
-        imageBuffer,
-        { width, height, quality }
-      );
+      responseBody = await transformImageLocal(c.env.IMAGE_TRANSFORMER_URL, imageBuffer, {
+        width,
+        height,
+        quality,
+      });
       contentType = "image/webp";
     } else if (shouldTransform && c.env.IMAGE_TRANSFORMER) {
       // Production: use Cloudflare Container via Durable Object
       const imageBuffer = await object.arrayBuffer();
-      const containerId =
-        c.env.IMAGE_TRANSFORMER.idFromName("image-transformer");
+      const containerId = c.env.IMAGE_TRANSFORMER.idFromName("image-transformer");
       const container = c.env.IMAGE_TRANSFORMER.get(containerId);
       responseBody = await transformImage(container, imageBuffer, {
         width,
@@ -91,7 +90,7 @@ export async function handleServe(c: Context<{ Bindings: Env }>): Promise<Respon
       {
         error: error instanceof Error ? error.message : "Failed to serve image",
       },
-      500
+      500,
     );
   }
 }

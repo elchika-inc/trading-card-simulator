@@ -36,9 +36,7 @@ export function App() {
           <Route path="/sample/gallery-sample" element={<CardGallery />} />
           <Route
             path="/sample/pack-open-sample"
-            element={
-              <Navigate to={`/packs/${DEFAULT_SAMPLE_PACK_ID}/open`} replace />
-            }
+            element={<Navigate to={`/packs/${DEFAULT_SAMPLE_PACK_ID}/open`} replace />}
           />
           <Route path="/sample/pack-select" element={<PackList />} />
           <Route path="/sample/top-page-sample" element={<Landing />} />

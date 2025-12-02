@@ -22,8 +22,7 @@ export const apiClient = hc<AppType>(
 /**
  * Images API ベースURL
  */
-const IMAGES_API_URL =
-  import.meta.env.VITE_IMAGES_API_URL || "http://localhost:8788";
+const IMAGES_API_URL = import.meta.env.VITE_IMAGES_API_URL || "http://localhost:8788";
 
 /**
  * 画像URLを構築するヘルパー関数
