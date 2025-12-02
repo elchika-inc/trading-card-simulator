@@ -226,7 +226,3 @@ lsof -ti:5173 | xargs kill -9  # フロントエンド
 ├── scripts/               # ユーティリティスクリプト
 └── CLAUDE.md              # AI開発ガイド
 ```
-
-## ライセンス
-
-MIT
