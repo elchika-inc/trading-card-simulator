@@ -1,32 +1,33 @@
 import { expect, test } from "@playwright/test";
 
-test("homepage displays correctly with shadcn/ui", async ({ page }) => {
+test("homepage displays correctly", async ({ page }) => {
   await page.goto("/");
 
-  // ページタイトルの確認
-  await expect(page).toHaveTitle(/Hello World - Hono \+ React/);
+  // メインメニューボタンの確認
+  await expect(page.getByText("召喚 - SUMMON")).toBeVisible();
+  await expect(page.getByText("ギャラリー - GALLERY")).toBeVisible();
 
-  // ヒーローセクションの見出しを確認
-  await expect(
-    page.getByRole("heading", { name: /モダンフルスタック.*アプリケーション/ }),
-  ).toBeVisible();
+  // カルーセルナビゲーションボタンの確認
+  const prevButton = page.locator('button').filter({ has: page.locator('svg.lucide-chevron-left') });
+  const nextButton = page.locator('button').filter({ has: page.locator('svg.lucide-chevron-right') });
+  await expect(prevButton).toBeVisible();
+  await expect(nextButton).toBeVisible();
 
-  // バッジの確認
-  await expect(page.getByText("Bun + Hono + React + shadcn/ui")).toBeVisible();
+  // お知らせエリアの確認
+  await expect(page.getByText("ランキングニュース")).toBeVisible();
+});
 
-  // ヒーローセクションの説明文の確認
-  await expect(page.getByText("Bun Workspacesを使用したモノレポ構成で、")).toBeVisible();
+test("navigation works correctly", async ({ page }) => {
+  await page.goto("/");
 
-  // ボタンの確認
-  await expect(page.getByRole("link", { name: "デモを見る" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "GitHub で見る" })).toBeVisible();
+  // 召喚ボタンをクリックしてパック一覧に遷移
+  await page.getByText("召喚 - SUMMON").click();
+  await expect(page).toHaveURL(/\/packs/);
 
-  // 機能セクションの確認
-  await expect(page.getByRole("heading", { name: "主な機能" })).toBeVisible();
+  // トップに戻る
+  await page.goto("/");
 
-  // デモセクションの確認
-  await expect(page.getByRole("heading", { name: "ライブデモ" })).toBeVisible();
-  await expect(
-    page.getByText("Hono RPC を使った型安全なAPI通信を実際に体験できます"),
-  ).toBeVisible();
+  // ギャラリーボタンをクリックしてギャラリーに遷移
+  await page.getByText("ギャラリー - GALLERY").click();
+  await expect(page).toHaveURL(/\/gallery/);
 });
