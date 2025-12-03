@@ -1,6 +1,6 @@
 import type { Card } from "@repo/types";
 import { HoloCard } from "@repo/ui/holo-card";
-import { ChevronsRight, Hand, Sparkles } from "lucide-react";
+import { ChevronsRight } from "lucide-react";
 import { getImageUrl } from "@/lib/api-client";
 import { INSPECT_CARD_SIZE } from "./constants";
 
@@ -72,31 +72,11 @@ export function PackInspecting({
 
           {/* 裏面: カード裏のデザイン */}
           <div className="absolute inset-0 backface-hidden rotate-y-180 rounded-xl overflow-hidden shadow-2xl border-[4px] border-slate-700 bg-slate-800">
-            {backImage ? (
-              <img src={backImage} alt="Card Back" className="w-full h-full object-cover" />
-            ) : (
-              <div
-                className="w-full h-full relative"
-                style={{
-                  background: `repeating-linear-gradient(
-                    45deg,
-                    #1e293b,
-                    #1e293b 10px,
-                    #334155 10px,
-                    #334155 20px
-                  )`,
-                }}
-              >
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-24 h-24 rounded-full border-4 border-slate-500/50 flex items-center justify-center bg-slate-800">
-                    <Sparkles className="w-12 h-12 text-slate-400" />
-                  </div>
-                </div>
-                <div className="absolute bottom-8 w-full flex justify-center opacity-50 animate-bounce">
-                  <Hand className="w-8 h-8 text-slate-400 rotate-[-15deg]" />
-                </div>
-              </div>
-            )}
+            <img
+              src={backImage || "/assets/card-back.png"}
+              alt="Card Back"
+              className="w-full h-full object-cover"
+            />
           </div>
         </div>
       </div>

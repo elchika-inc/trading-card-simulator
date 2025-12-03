@@ -1,4 +1,5 @@
 import type { AppType } from "@repo/backend";
+import type { ActiveAssetResponse, AssetType } from "@repo/types";
 import { hc } from "hono/client";
 
 /**
@@ -56,4 +57,60 @@ export function getImageUrl(
 
   const queryString = params.toString();
   return `${IMAGES_API_URL}/api/images/${imageFileName}${queryString ? `?${queryString}` : ""}`;
+}
+
+/**
+ * アセットURLを構築するヘルパー関数
+ *
+ * @param assetType - アセットタイプ（"card-back", "pack-front", "pack-back"）
+ * @param assetId - アセットID（ファイル名）
+ * @param options - オプション（format, width, height, quality）
+ * @returns 完全なアセットURL
+ */
+export function getAssetUrl(
+  assetType: AssetType,
+  assetId: string,
+  options?: {
+    format?: "webp" | "auto" | "original";
+    width?: number;
+    height?: number;
+    quality?: number;
+  },
+): string {
+  const params = new URLSearchParams();
+  if (options?.format) params.set("format", options.format);
+  if (options?.width) params.set("width", options.width.toString());
+  if (options?.height) params.set("height", options.height.toString());
+  if (options?.quality) params.set("quality", options.quality.toString());
+
+  const queryString = params.toString();
+  return `${IMAGES_API_URL}/api/assets/${assetType}/${assetId}${queryString ? `?${queryString}` : ""}`;
+}
+
+/**
+ * アクティブなアセットを取得する
+ *
+ * @param assetType - アセットタイプ（"card-back", "pack-front", "pack-back"）
+ * @returns アクティブなアセットのURL、またはnull
+ */
+export async function getActiveAssetUrl(
+  assetType: AssetType,
+  options?: {
+    format?: "webp" | "auto" | "original";
+    width?: number;
+    height?: number;
+    quality?: number;
+  },
+): Promise<string | null> {
+  try {
+    const response = await fetch(`${IMAGES_API_URL}/api/assets/active/${assetType}`);
+    if (!response.ok) return null;
+
+    const data: ActiveAssetResponse = await response.json();
+    if (!data.success || !data.data.asset) return null;
+
+    return getAssetUrl(assetType, data.data.asset.id, options);
+  } catch {
+    return null;
+  }
 }

@@ -41,7 +41,7 @@ export function CardList({ refreshTrigger }: CardListProps) {
 
   useEffect(() => {
     fetchCards();
-  }, [fetchCards, refreshTrigger]);
+  }, [fetchCards]);
 
   if (loading) {
     return <div className="text-center py-8">読み込み中...</div>;

@@ -1,4 +1,4 @@
-import { Image, Layers } from "lucide-react";
+import { Image, Layers, Palette } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -67,6 +67,13 @@ export function MenuPage() {
             description="カードの作成と一覧表示"
             icon={<Layers className="w-8 h-8 text-purple-600" />}
             onClick={() => navigate("/cards")}
+          />
+
+          <MenuItem
+            title="アセット管理"
+            description="カード背面・パック画像のアップロードと管理"
+            icon={<Palette className="w-8 h-8 text-green-600" />}
+            onClick={() => navigate("/assets")}
           />
         </div>
       </main>

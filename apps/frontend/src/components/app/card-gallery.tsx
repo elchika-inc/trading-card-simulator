@@ -5,13 +5,15 @@
 
 import type { Card } from "@repo/types";
 import { HoloCard } from "@repo/ui/holo-card";
-import { X } from "lucide-react";
+import { Home, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { apiClient, getImageUrl } from "@/lib/api-client";
 import { cssKeyframes } from "@/lib/keyframes";
 import { PageLayout } from "./page-layout";
 
 export function CardGallery() {
+  const navigate = useNavigate();
   const [cards, setCards] = useState<Card[]>([]);
   const [selectedCard, setSelectedCard] = useState<Card | null>(null);
   const [loading, setLoading] = useState(true);
@@ -80,9 +82,21 @@ export function CardGallery() {
 
   return (
     <PageLayout>
-      <div className="min-h-screen py-16 px-4">
+      <div className="min-h-screen py-16 px-4 relative">
         {/* グローバルCSSアニメーションを注入 */}
         <style dangerouslySetInnerHTML={{ __html: cssKeyframes }} />
+
+        {/* トップページに戻るボタン */}
+        <div className="absolute top-0 left-0 right-0 p-6 flex justify-start items-center z-20">
+          <button
+            onClick={() => navigate("/")}
+            className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors bg-black/30 px-4 py-2 rounded-full backdrop-blur-md border border-white/10"
+            type="button"
+          >
+            <Home size={20} />
+            <span className="text-sm font-bold">トップに戻る</span>
+          </button>
+        </div>
 
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12 space-y-4">

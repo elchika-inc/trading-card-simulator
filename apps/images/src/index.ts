@@ -6,6 +6,14 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import type { Env } from "./container";
+import {
+  handleAssetList,
+  handleAssetUpload,
+  handleDeleteAsset,
+  handleGetActiveAsset,
+  handleServeAsset,
+  handleSetActiveAsset,
+} from "./routes/assets";
 import { handleList } from "./routes/list";
 import { handleServe } from "./routes/serve";
 import { handleBulkUpload, handleUpload } from "./routes/upload";
@@ -22,7 +30,7 @@ app.use("/*", async (c, next) => {
 
   const corsMiddleware = cors({
     origin: allowedOrigins.includes(origin) ? origin : (allowedOrigins[0] ?? "*"),
-    allowMethods: ["GET", "POST", "DELETE", "OPTIONS"],
+    allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowHeaders: ["Content-Type"],
     maxAge: 86400,
   });
@@ -34,17 +42,26 @@ app.use("/*", async (c, next) => {
 app.get("/", (c) => {
   return c.json({
     service: "Trading Card Images API",
-    version: "2.0.0",
+    version: "2.1.0",
     features: {
       webpConversion: true,
       containerBased: true,
+      assetManagement: true,
     },
     endpoints: {
+      // 画像API
       upload: "POST /api/images",
       bulkUpload: "POST /api/images/bulk",
       serve: "GET /api/images/:id",
       serveWithTransform: "GET /api/images/:id?format=webp&width=320&quality=80",
       list: "GET /api/images",
+      // アセットAPI
+      assetUpload: "POST /api/assets",
+      assetList: "GET /api/assets?type=card-back",
+      assetServe: "GET /api/assets/:type/:id",
+      assetActive: "GET /api/assets/active/:type",
+      assetSetActive: "PUT /api/assets/:type/:id/activate",
+      assetDelete: "DELETE /api/assets/:type/:id",
     },
   });
 });
@@ -60,6 +77,24 @@ app.get("/api/images/:id", handleServe);
 
 // 画像一覧
 app.get("/api/images", handleList);
+
+// アセットアップロード
+app.post("/api/assets", handleAssetUpload);
+
+// アセット一覧
+app.get("/api/assets", handleAssetList);
+
+// アクティブアセット取得（/api/assets/activeより先にマッチさせる）
+app.get("/api/assets/active/:type", handleGetActiveAsset);
+
+// アセットをアクティブに設定
+app.put("/api/assets/:type/:id/activate", handleSetActiveAsset);
+
+// アセット削除
+app.delete("/api/assets/:type/:id", handleDeleteAsset);
+
+// アセット配信
+app.get("/api/assets/:type/:id", handleServeAsset);
 
 // AppType を export（Hono RPC用）
 export type AppType = typeof app;

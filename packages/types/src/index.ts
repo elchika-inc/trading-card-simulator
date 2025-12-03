@@ -6,6 +6,17 @@
 
 // API型定義
 export type { ApiError, ApiResponse, Post } from "./api";
+// アセット関連の型定義
+export type {
+  ActiveAssetResponse,
+  AssetDeleteResponse,
+  AssetListResponse,
+  AssetMetadata,
+  AssetSetActiveResponse,
+  AssetType,
+  AssetUploadResponse,
+} from "./asset";
+export { ASSET_TYPE_LABELS } from "./asset";
 // カード関連の型定義
 export type { Card, CardRarity, HoloType, TextStyleType } from "./card";
 // 環境変数の型定義
