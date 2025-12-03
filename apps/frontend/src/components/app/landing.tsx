@@ -1,9 +1,9 @@
+import { HoloCard } from "@repo/ui/holo-card";
 import { ArrowRight, ChevronLeft, ChevronRight, Layers, Sparkles, Trophy } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { featuredCards } from "@/data/featured-cards";
 import { getImageUrl } from "@/lib/api-client";
-import { HoloCard } from "./holo-card";
 import { MenuButton } from "./menu-button";
 import { ParticleBackground } from "./particle-background";
 
@@ -149,7 +149,12 @@ export function Landing() {
                         key={card.id}
                         className={`absolute top-0 left-0 w-full h-full ${animClass}`}
                       >
-                        <HoloCard card={card} className="w-full h-full" showCount={false} />
+                        <HoloCard
+                          card={card}
+                          imageUrl={getImageUrl(card.image, { format: "webp" })}
+                          className="w-full h-full"
+                          showCount={false}
+                        />
                       </div>
                     );
                   })}

@@ -178,3 +178,42 @@ export interface Card {
   /** レアリティ（カテゴリ） */
   rarity: CardRarity;
 }
+
+/**
+ * カード作成リクエスト
+ */
+export interface CardCreateRequest {
+  /** カード名 */
+  name: string;
+  /** ホログラムエフェクトタイプ */
+  holoType: HoloType;
+  /** テキストスタイル */
+  textStyle: TextStyleType;
+  /** 画像ID（R2にアップロードした画像のUUID） */
+  imageId: string;
+  /** 説明文 */
+  description?: string;
+  /** アイコン名（lucide-reactのアイコン名） */
+  iconName?: string;
+  /** レアリティ（カテゴリ） */
+  rarity: CardRarity;
+}
+
+/**
+ * カード作成レスポンス
+ */
+export interface CardCreateResponse {
+  success: true;
+  data: Card;
+}
+
+/**
+ * カード一覧レスポンス
+ */
+export interface CardListResponse {
+  success: true;
+  data: {
+    cards: Card[];
+    total: number;
+  };
+}

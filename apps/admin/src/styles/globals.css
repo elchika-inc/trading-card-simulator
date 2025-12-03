@@ -1,1 +1,4 @@
 @import "tailwindcss";
+
+/* packages/ui の Tailwind クラスをスキャン */
+@source "../../../../packages/ui/src/**/*.{ts,tsx}";

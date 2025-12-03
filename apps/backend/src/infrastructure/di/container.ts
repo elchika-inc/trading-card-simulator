@@ -1,4 +1,5 @@
 import type { Env } from "@repo/types/env";
+import { CreateCardUseCase } from "../../application/card";
 import type { CardRepository } from "../../domain/card";
 import type { GachaLogRepository, GachaPackRepository } from "../../domain/gacha";
 import { GachaService } from "../../domain/gacha";
@@ -87,6 +88,13 @@ export class Container {
    */
   getEnv(): Env {
     return this.env;
+  }
+
+  /**
+   * CreateCardUseCaseを取得
+   */
+  getCreateCardUseCase(): CreateCardUseCase {
+    return new CreateCardUseCase(this.getCardRepository(), this.getEventPublisher());
   }
 }
 

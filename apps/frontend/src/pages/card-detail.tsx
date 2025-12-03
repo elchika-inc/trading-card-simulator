@@ -1,10 +1,10 @@
 import type { Card } from "@repo/types";
+import { HoloCard } from "@repo/ui/holo-card";
 import { ArrowLeft } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { HoloCard } from "@/components/app/holo-card";
 import { PageLayout } from "@/components/app/page-layout";
-import { apiClient } from "@/lib/api-client";
+import { apiClient, getImageUrl } from "@/lib/api-client";
 import { cssKeyframes } from "@/lib/keyframes";
 
 /**
@@ -104,7 +104,11 @@ export function CardDetail() {
           <div className="flex flex-col lg:flex-row items-center lg:items-start gap-12">
             {/* カード */}
             <div className="flex-shrink-0">
-              <HoloCard card={card} className="w-[320px] h-[480px] sm:w-[400px] sm:h-[600px]" />
+              <HoloCard
+                card={card}
+                imageUrl={getImageUrl(card.image, { format: "webp" })}
+                className="w-[320px] h-[480px] sm:w-[400px] sm:h-[600px]"
+              />
             </div>
 
             {/* カード情報 */}

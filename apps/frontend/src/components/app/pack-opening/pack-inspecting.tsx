@@ -1,6 +1,7 @@
 import type { Card } from "@repo/types";
+import { HoloCard } from "@repo/ui/holo-card";
 import { ChevronsRight, Hand, Sparkles } from "lucide-react";
-import { HoloCard } from "../holo-card";
+import { getImageUrl } from "@/lib/api-client";
 import { INSPECT_CARD_SIZE } from "./constants";
 
 interface PackInspectingProps {
@@ -62,6 +63,7 @@ export function PackInspecting({
             {cards[currentCardIndex] && (
               <HoloCard
                 card={cards[currentCardIndex]}
+                imageUrl={getImageUrl(cards[currentCardIndex].image, { format: "webp" })}
                 showCount={false}
                 className="w-full h-full"
               />

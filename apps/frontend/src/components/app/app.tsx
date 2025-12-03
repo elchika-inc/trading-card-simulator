@@ -1,4 +1,5 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { PackSelectV2Sample } from "@/components/sample/pack-select-v2";
 import { UserProvider } from "@/contexts/user-context";
 import { CardDetail, PackDetail, PackList, PackOpeningPage } from "@/pages";
 import { CardGallery } from "./card-gallery";
@@ -39,6 +40,7 @@ export function App() {
             element={<Navigate to={`/packs/${DEFAULT_SAMPLE_PACK_ID}/open`} replace />}
           />
           <Route path="/sample/pack-select" element={<PackList />} />
+          <Route path="/sample/pack-select-v2" element={<PackSelectV2Sample />} />
           <Route path="/sample/top-page-sample" element={<Landing />} />
         </Routes>
       </BrowserRouter>

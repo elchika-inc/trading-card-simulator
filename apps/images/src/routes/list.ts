@@ -27,8 +27,21 @@ export async function handleList(c: Context<{ Bindings: Env }>): Promise<Respons
     });
 
     // ImageMetadataに変換
+    // WebP版は最適化のための内部ファイルなので、リストから除外
+    // ただし、WebPの存在を確認するためにIDセットを作成
     const baseUrl = new URL(c.req.url).origin;
-    const images = result.objects.map((obj) => r2ObjectToImageMetadata(obj, baseUrl));
+    const webpIds = new Set(
+      result.objects
+        .filter((obj) => obj.key.endsWith(".webp"))
+        .map((obj) => obj.key.replace(/^images\//, "").replace(/\.\w+$/, "")),
+    );
+
+    const images = result.objects
+      .filter((obj) => !obj.key.endsWith(".webp"))
+      .map((obj) => {
+        const id = obj.key.replace(/^images\//, "").replace(/\.\w+$/, "");
+        return r2ObjectToImageMetadata(obj, baseUrl, webpIds.has(id));
+      });
 
     const response: ImageListResponse = {
       success: true,

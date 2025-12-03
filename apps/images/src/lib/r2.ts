@@ -67,6 +67,7 @@ export async function deleteFromR2(bucket: R2Bucket, key: string): Promise<void>
 export function r2ObjectToImageMetadata(
   object: R2Object | R2ObjectBody,
   baseUrl: string,
+  hasWebP?: boolean,
 ): ImageMetadata {
   const id = object.key.replace(/^images\//, "").replace(/\.\w+$/, "");
   const ext = object.key.split(".").pop() ?? "png";
@@ -79,5 +80,6 @@ export function r2ObjectToImageMetadata(
     contentType: object.httpMetadata?.contentType ?? "image/png",
     size: object.size,
     uploadedAt: object.customMetadata?.uploadedAt ?? object.uploaded.toISOString(),
+    hasWebP,
   };
 }

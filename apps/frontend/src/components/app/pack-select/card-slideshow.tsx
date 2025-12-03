@@ -1,23 +1,18 @@
 import type { Card } from "@repo/types";
+import { HoloCard } from "@repo/ui/holo-card";
 import { Info, Star } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getImageUrl } from "@/lib/api-client";
-import { HoloCard } from "../holo-card";
 
 interface CardSlideshowProps {
   cards: Card[];
   onCardClick?: (card: Card) => void;
-  CardComponent?: React.ComponentType<{ card: Card; className?: string; showCount?: boolean }>;
 }
 
 /**
  * 注目カードのスライドショーコンポーネント
  */
-export function CardSlideshow({
-  cards,
-  onCardClick,
-  CardComponent = HoloCard,
-}: CardSlideshowProps) {
+export function CardSlideshow({ cards, onCardClick }: CardSlideshowProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [transitioning, setTransitioning] = useState(false);
   const [direction, setDirection] = useState(1);
@@ -108,7 +103,12 @@ export function CardSlideshow({
 
             return (
               <div key={card.id} className={`absolute top-0 left-0 w-full h-full ${animClass}`}>
-                <CardComponent card={card} className="w-full h-full" showCount={false} />
+                <HoloCard
+                  card={card}
+                  imageUrl={getImageUrl(card.image, { format: "webp" })}
+                  className="w-full h-full"
+                  showCount={false}
+                />
               </div>
             );
           })}

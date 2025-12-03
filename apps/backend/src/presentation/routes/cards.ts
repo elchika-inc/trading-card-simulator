@@ -1,5 +1,7 @@
+import type { CardCreateRequest, CardCreateResponse } from "@repo/types";
 import type { Env } from "@repo/types/env";
 import { Hono } from "hono";
+import type { CreateCardInput } from "../../application/card";
 import {
   GetAllCardsUseCase,
   GetCardByIdUseCase,
@@ -32,6 +34,41 @@ cardsRoutes.get("/stats/rarity", async (c) => {
         timestamp: new Date().toISOString(),
       },
       500,
+    );
+  }
+});
+
+// カード作成
+cardsRoutes.post("/", async (c) => {
+  try {
+    const container = createContainer(c.env);
+    const useCase = container.getCreateCardUseCase();
+
+    const body = await c.req.json<CardCreateRequest>();
+
+    // 環境変数からImages Worker URLを取得
+    const imageWorkerUrl = c.env.IMAGE_WORKER_URL || "http://localhost:8788";
+
+    const input: CreateCardInput = {
+      ...body,
+      imageWorkerUrl,
+    };
+
+    const result = await useCase.execute(input);
+
+    const response: CardCreateResponse = {
+      success: true,
+      data: result.card,
+    };
+
+    return c.json(response, 201);
+  } catch (error) {
+    return c.json(
+      {
+        error: error instanceof Error ? error.message : "Unknown error",
+        timestamp: new Date().toISOString(),
+      },
+      400,
     );
   }
 });

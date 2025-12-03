@@ -1,6 +1,7 @@
 import type { Card } from "@repo/types";
+import { HoloCard } from "@repo/ui/holo-card";
 import { RefreshCcw } from "lucide-react";
-import { HoloCard } from "../holo-card";
+import { getImageUrl } from "@/lib/api-client";
 
 interface PackResultsProps {
   gameState: string;
@@ -30,7 +31,12 @@ export function PackResults({ gameState, cards, onReset }: PackResultsProps) {
                   animationFillMode: "forwards",
                 }}
               >
-                <HoloCard card={card} showCount={false} className="w-full h-full" />
+                <HoloCard
+                  card={card}
+                  imageUrl={getImageUrl(card.image, { format: "webp" })}
+                  showCount={false}
+                  className="w-full h-full"
+                />
               </div>
             ))}
           </div>
@@ -46,7 +52,12 @@ export function PackResults({ gameState, cards, onReset }: PackResultsProps) {
                   animationFillMode: "forwards",
                 }}
               >
-                <HoloCard card={card} showCount={false} className="w-full h-full" />
+                <HoloCard
+                  card={card}
+                  imageUrl={getImageUrl(card.image, { format: "webp" })}
+                  showCount={false}
+                  className="w-full h-full"
+                />
               </div>
             ))}
           </div>

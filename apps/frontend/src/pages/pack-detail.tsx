@@ -1,8 +1,8 @@
 import type { Card } from "@repo/types";
+import { HoloCard } from "@repo/ui/holo-card";
 import { ArrowLeft, Coins, RefreshCw, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { HoloCard } from "@/components/app/holo-card";
 import { CardDetailModal } from "@/components/app/pack-select/card-detail-modal";
 import { CardSlideshow } from "@/components/app/pack-select/card-slideshow";
 import { CoinDisplay } from "@/components/app/pack-select/coin-display";

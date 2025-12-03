@@ -40,7 +40,7 @@ export function ImageList({ refreshTrigger }: ImageListProps) {
 
   useEffect(() => {
     fetchImages();
-  }, [fetchImages]);
+  }, [fetchImages, refreshTrigger]);
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);

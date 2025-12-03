@@ -1,4 +1,9 @@
 export {
+  type CreateCardInput,
+  type CreateCardOutput,
+  CreateCardUseCase,
+} from "./create-card.usecase";
+export {
   type GetAllCardsOutput,
   GetAllCardsUseCase,
 } from "./get-all-cards.usecase";

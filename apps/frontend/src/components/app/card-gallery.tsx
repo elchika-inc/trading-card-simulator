@@ -4,11 +4,11 @@
  */
 
 import type { Card } from "@repo/types";
+import { HoloCard } from "@repo/ui/holo-card";
 import { X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { apiClient } from "@/lib/api-client";
+import { apiClient, getImageUrl } from "@/lib/api-client";
 import { cssKeyframes } from "@/lib/keyframes";
-import { HoloCard } from "./holo-card";
 import { PageLayout } from "./page-layout";
 
 export function CardGallery() {
@@ -101,6 +101,7 @@ export function CardGallery() {
               <HoloCard
                 key={card.id}
                 card={card}
+                imageUrl={getImageUrl(card.image, { format: "webp" })}
                 onClick={() => setSelectedCard(card)}
                 className="w-[260px] h-[400px]"
               />
@@ -138,6 +139,7 @@ export function CardGallery() {
               {/* 拡大表示されたカード */}
               <HoloCard
                 card={selectedCard}
+                imageUrl={getImageUrl(selectedCard.image, { format: "webp" })}
                 className="w-[320px] h-[480px] sm:w-[400px] sm:h-[600px]"
               />
             </div>

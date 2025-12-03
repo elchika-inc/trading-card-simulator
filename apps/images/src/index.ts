@@ -8,7 +8,7 @@ import { cors } from "hono/cors";
 import type { Env } from "./container";
 import { handleList } from "./routes/list";
 import { handleServe } from "./routes/serve";
-import { handleUpload } from "./routes/upload";
+import { handleBulkUpload, handleUpload } from "./routes/upload";
 
 // Re-export Container class for Durable Objects
 export { ImageTransformerContainer } from "./container";
@@ -41,12 +41,16 @@ app.get("/", (c) => {
     },
     endpoints: {
       upload: "POST /api/images",
+      bulkUpload: "POST /api/images/bulk",
       serve: "GET /api/images/:id",
       serveWithTransform: "GET /api/images/:id?format=webp&width=320&quality=80",
       list: "GET /api/images",
     },
   });
 });
+
+// 画像一括アップロード
+app.post("/api/images/bulk", handleBulkUpload);
 
 // 画像アップロード
 app.post("/api/images", handleUpload);

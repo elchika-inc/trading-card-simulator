@@ -13,6 +13,7 @@ export interface ImageMetadata {
   contentType: string;
   size: number;
   uploadedAt: string;
+  hasWebP?: boolean;
   metadata?: {
     width?: number;
     height?: number;
@@ -39,6 +40,23 @@ export interface ImageUploadRequest {
 export interface ImageUploadResponse {
   success: true;
   data: ImageMetadata;
+}
+
+/**
+ * 一括画像アップロードレスポンス
+ */
+export interface ImageBulkUploadResponse {
+  success: true;
+  data: {
+    uploaded: ImageMetadata[];
+    failed: Array<{
+      filename: string;
+      error: string;
+    }>;
+    total: number;
+    successCount: number;
+    failedCount: number;
+  };
 }
 
 /**

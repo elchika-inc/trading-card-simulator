@@ -1,17 +1,17 @@
 import type { Card } from "@repo/types";
+import { HoloCard } from "@repo/ui/holo-card";
 import { X } from "lucide-react";
-import { HoloCard } from "../holo-card";
+import { getImageUrl } from "@/lib/api-client";
 
 interface CardDetailModalProps {
   card: Card | null;
   onClose: () => void;
-  CardComponent?: React.ComponentType<{ card: Card }>;
 }
 
 /**
  * カードの詳細を表示するモーダル
  */
-export function CardDetailModal({ card, onClose, CardComponent = HoloCard }: CardDetailModalProps) {
+export function CardDetailModal({ card, onClose }: CardDetailModalProps) {
   if (!card) return null;
 
   return (
@@ -44,7 +44,12 @@ export function CardDetailModal({ card, onClose, CardComponent = HoloCard }: Car
 
         {/* カード拡大表示 */}
         <div className="w-48 h-64 transform scale-150 mb-12 shadow-2xl">
-          <CardComponent card={card} />
+          <HoloCard
+            card={card}
+            imageUrl={getImageUrl(card.image, { format: "webp" })}
+            className="w-full h-full"
+            showCount={false}
+          />
         </div>
 
         {/* 詳細情報 */}

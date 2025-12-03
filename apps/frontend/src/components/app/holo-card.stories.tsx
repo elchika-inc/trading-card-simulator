@@ -1,6 +1,6 @@
 import type { Card } from "@repo/types";
+import { HoloCard } from "@repo/ui/holo-card";
 import type { Meta, StoryObj } from "@storybook/react";
-import { HoloCard } from "./holo-card";
 
 /**
  * HoloCard - ホログラフィックカードコンポーネント
