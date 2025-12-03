@@ -13,26 +13,18 @@ pre-commit:
       run: bunx biome check --write --diagnostic-level=error --no-errors-on-unmatched --files-ignore-unknown=true {staged_files}
       stage_fixed: true
 
-# pre-push: プッシュ前にテストとビルドを実行
-pre-push:
-  commands:
-    # Biomeリントチェック（修正はしない、エラーがあれば失敗）
-    # コミット済みのコード全体をチェック
-    lint-check:
-      run: bun run lint
-
-    # テスト実行（コメントアウト: プッシュ時のE2Eテストを無効化）
-    # test:
-    #   run: bun run test
-      # テストが重い場合はコメントアウト
-      # skip:
-      #   - merge
-      #   - rebase
-
-    # ビルド確認
-    build:
-      run: bun run build
-      # 開発中はスキップしたい場合はコメントアウト解除
-      # skip:
-      #   - ref: main
-      #     name: Skip build on main branch
+# pre-push: 無効化（将来的にGitHub Actionsに移行予定）
+# pre-push:
+#   commands:
+#     # Biomeリントチェック（修正はしない、エラーがあれば失敗）
+#     # コミット済みのコード全体をチェック
+#     lint-check:
+#       run: bun run lint
+#
+#     # テスト実行
+#     # test:
+#     #   run: bun run test
+#
+#     # ビルド確認
+#     build:
+#       run: bun run build
