@@ -2,6 +2,7 @@ export {
   type CreateCardInput,
   type CreateCardOutput,
   CreateCardUseCase,
+  type PackAssignmentInput,
 } from "./create-card.usecase";
 export {
   type GetAllCardsOutput,
@@ -21,3 +22,8 @@ export {
   type GetCardsByRarityOutput,
   GetCardsByRarityUseCase,
 } from "./get-cards-by-rarity.usecase";
+export {
+  type UpdateCardInput,
+  type UpdateCardOutput,
+  UpdateCardUseCase,
+} from "./update-card.usecase";

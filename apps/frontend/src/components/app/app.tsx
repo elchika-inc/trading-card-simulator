@@ -1,7 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { PackSelectV2Sample } from "@/components/sample/pack-select-v2";
 import { UserProvider } from "@/contexts/user-context";
-import { CardDetail, PackDetail, PackList, PackOpeningPage } from "@/pages";
+import { CardDetail, GroupDetail, GroupList, PackDetail, PackList, PackOpeningPage } from "@/pages";
 import { CardGallery } from "./card-gallery";
 import { Landing } from "./landing";
 
@@ -23,6 +23,10 @@ export function App() {
         <Routes>
           {/* ランディング */}
           <Route path="/" element={<Landing />} />
+
+          {/* グループ関連 */}
+          <Route path="/groups" element={<GroupList />} />
+          <Route path="/groups/:groupId" element={<GroupDetail />} />
 
           {/* パック関連 */}
           <Route path="/packs" element={<PackList />} />

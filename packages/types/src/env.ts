@@ -1,3 +1,18 @@
+import type { AssetRecord, AssetType, RegisterAssetInput, RegisterAssetResult } from "./asset";
+
+/**
+ * AssetService RPC型定義
+ * Service Bindings経由でimages Workerから呼び出されるメソッド
+ */
+export interface AssetServiceRpc {
+  registerAsset(input: RegisterAssetInput): Promise<RegisterAssetResult>;
+  setActiveAsset(type: AssetType, assetId: string): Promise<void>;
+  deleteAsset(assetId: string): Promise<string | null>;
+  getAsset(assetId: string): Promise<AssetRecord | null>;
+  getActiveAsset(type: AssetType): Promise<AssetRecord | null>;
+  getAssetsByType(type: AssetType): Promise<AssetRecord[]>;
+}
+
 /**
  * Cloudflare Workers環境変数の型定義
  *
@@ -60,12 +75,28 @@ export interface Env {
   IMAGE_WORKER_URL?: string;
 
   /**
+   * Image Transformer URL（ローカル開発用Docker container）
+   * @example
+   * // .dev.vars
+   * IMAGE_TRANSFORMER_URL="http://localhost:8090"
+   */
+  IMAGE_TRANSFORMER_URL?: string;
+
+  /**
    * CORS許可オリジン（画像Worker用）
    * @example
    * // .dev.vars
    * ALLOWED_ORIGINS="http://localhost:5173,https://example.com"
    */
   ALLOWED_ORIGINS?: string;
+
+  /**
+   * バックエンドAPI URL（イメージWorkerからHTTP経由で呼び出し用）
+   * @example
+   * // wrangler.jsonc (apps/images)
+   * "vars": { "BACKEND_API_URL": "http://localhost:8787" }
+   */
+  BACKEND_API_URL?: string;
 
   // ===========================================================================
   // Cloudflare バインディング
@@ -164,6 +195,24 @@ export interface Env {
    * }
    */
   EVENTS_QUEUE?: Queue;
+
+  /**
+   * Backend API Service Binding (images Worker用)
+   * @see https://developers.cloudflare.com/workers/runtime-apis/bindings/service-bindings/
+   * @example
+   * // wrangler.jsonc (apps/images)
+   * "services": [
+   *   {
+   *     "binding": "BACKEND_API",
+   *     "service": "trading-card-simulator-api",
+   *     "entrypoint": "AssetService"
+   *   }
+   * ]
+   *
+   * Note: Service Bindings RPCは実行時に型付けされる。
+   * AssetServiceRpcインターフェースは呼び出し時の型チェックに使用。
+   */
+  BACKEND_API?: AssetServiceRpc;
 
   /**
    * Vectorize Index

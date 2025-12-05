@@ -9,14 +9,10 @@
  * 本番環境での Container 統合は Containers が GA になった後に実装します。
  */
 
-export interface Env {
-  // Cloudflare Container (production) - 将来実装予定
-  IMAGE_TRANSFORMER?: DurableObjectNamespace;
-  CARD_IMAGES: R2Bucket;
-  ALLOWED_ORIGINS: string;
-  // Local development: Docker container URL
-  IMAGE_TRANSFORMER_URL?: string;
-}
+import type { Env } from "@repo/types";
+
+// Env型を再エクスポート
+export type { Env };
 
 /**
  * Transform image using local Docker container (for development)

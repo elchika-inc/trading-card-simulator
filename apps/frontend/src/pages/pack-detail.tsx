@@ -1,15 +1,15 @@
-import type { Card } from "@repo/types";
+import type { Card, GachaPackWithAssets } from "@repo/types";
 import { HoloCard } from "@repo/ui/holo-card";
-import { ArrowLeft, Coins, RefreshCw, Sparkles } from "lucide-react";
-import { useState } from "react";
+import { PackVisual } from "@repo/ui/pack-visual";
+import { ArrowLeft, Coins, Loader2, RefreshCw, Sparkles } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { CardDetailModal } from "@/components/app/pack-select/card-detail-modal";
 import { CardSlideshow } from "@/components/app/pack-select/card-slideshow";
 import { CoinDisplay } from "@/components/app/pack-select/coin-display";
-import { PackVisual } from "@/components/app/pack-select/pack-visual";
 import { PageLayout } from "@/components/app/page-layout";
 import { useUser } from "@/contexts/user-context";
-import { PACK_TYPES } from "@/data/pack-types";
+import { getGachaPack } from "@/lib/api-client";
 
 /**
  * パック詳細・プレビューページ
@@ -21,8 +21,28 @@ export function PackDetail() {
   const { coins, deductCoins, canAfford } = useUser();
   const [isRotating, setIsRotating] = useState(false);
   const [selectedCardForModal, setSelectedCardForModal] = useState<Card | null>(null);
+  const [packData, setPackData] = useState<GachaPackWithAssets | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const packData = PACK_TYPES.find((p) => p.id === packId);
+  // パックデータを取得
+  useEffect(() => {
+    if (packId) {
+      getGachaPack(packId).then((data) => {
+        setPackData(data);
+        setLoading(false);
+      });
+    }
+  }, [packId]);
+
+  if (loading) {
+    return (
+      <PageLayout>
+        <div className="min-h-screen flex items-center justify-center">
+          <Loader2 className="w-8 h-8 animate-spin text-zinc-400" />
+        </div>
+      </PageLayout>
+    );
+  }
 
   if (!packData) {
     return (
@@ -43,10 +63,10 @@ export function PackDetail() {
     );
   }
 
-  const affordable = canAfford(packData.price);
+  const affordable = canAfford(packData.cost);
 
   const handleOpenPack = () => {
-    if (deductCoins(packData.price)) {
+    if (deductCoins(packData.cost)) {
       navigate(`/packs/${packId}/open`);
     } else {
       alert("コインが足りません！");
@@ -97,13 +117,15 @@ export function PackDetail() {
 
           <div className="flex flex-col md:flex-row items-center justify-center gap-10 md:gap-20">
             {/* 左側: 注目カードスライドショー */}
-            <div>
-              <CardSlideshow
-                cards={packData.featuredCards || []}
-                CardComponent={HoloCard}
-                onCardClick={(card) => setSelectedCardForModal(card)}
-              />
-            </div>
+            {packData.featuredCards && packData.featuredCards.length > 0 && (
+              <div>
+                <CardSlideshow
+                  cards={packData.featuredCards}
+                  CardComponent={HoloCard}
+                  onCardClick={(card) => setSelectedCardForModal(card)}
+                />
+              </div>
+            )}
 
             {/* 右側: パック本体 */}
             <div
@@ -114,10 +136,25 @@ export function PackDetail() {
               onKeyDown={(e) => e.key === "Enter" && setIsRotating(!isRotating)}
             >
               <PackVisual
-                type={packData.id}
+                frontImageUrl={packData.frontImageUrl}
+                backImageUrl={packData.backImageUrl}
+                packData={{
+                  name: packData.name,
+                  description: packData.description,
+                  icon: packData.icon,
+                  colorFrom: packData.colorFrom,
+                  colorTo: packData.colorTo,
+                  accentColor: packData.accentColor,
+                  rareRate: packData.rareRate,
+                  subTitle: packData.subTitle,
+                  contentsInfo: packData.contentsInfo,
+                  backTitle: packData.backTitle,
+                  featureTitle: packData.featureTitle,
+                }}
                 isSelected={true}
                 showBack={isRotating}
                 isHovered={false}
+                className="w-64 h-96"
               />
               <div
                 className={`absolute top-full left-0 right-0 h-20 transform scale-y-[-1] opacity-20 pointer-events-none reflection-mask transition-opacity duration-300 ${
@@ -125,10 +162,20 @@ export function PackDetail() {
                 }`}
               >
                 <PackVisual
-                  type={packData.id}
+                  frontImageUrl={packData.frontImageUrl}
+                  packData={{
+                    name: packData.name,
+                    description: packData.description,
+                    icon: packData.icon,
+                    colorFrom: packData.colorFrom,
+                    colorTo: packData.colorTo,
+                    accentColor: packData.accentColor,
+                    rareRate: packData.rareRate,
+                  }}
                   isSelected={false}
                   showBack={false}
                   isHovered={false}
+                  className="w-64 h-96"
                 />
               </div>
 
@@ -173,7 +220,7 @@ export function PackDetail() {
                 `}
               >
                 <Coins size={14} className={affordable ? "text-yellow-600 fill-yellow-600" : ""} />
-                {packData.price}
+                {packData.cost}
               </div>
             </button>
           </div>

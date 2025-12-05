@@ -1,5 +1,7 @@
+import type { BackgroundPresetId } from "@repo/types";
+import { GradientBackground } from "@repo/ui/gradient-background";
 import type { ReactNode } from "react";
-import { ParticleBackground } from "./particle-background";
+import { useEffect, useState } from "react";
 
 interface PageLayoutProps {
   children: ReactNode;
@@ -8,21 +10,33 @@ interface PageLayoutProps {
 
 /**
  * 共通ページレイアウトコンポーネント
- * 全ページに共通の紫グラデーション背景とパーティクルエフェクトを適用
+ * APIから背景設定を取得し、共通のGradientBackgroundを適用
  */
 export function PageLayout({ children, className = "" }: PageLayoutProps) {
-  return (
-    <div
-      className={`relative min-h-screen bg-[#0f0c29] text-white overflow-hidden font-sans selection:bg-purple-500 selection:text-white ${className}`}
-    >
-      {/* 背景エフェクト */}
-      <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e] animate-gradient-bg bg-[length:400%_400%]" />
-        <ParticleBackground />
-      </div>
+  const [preset, setPreset] = useState<BackgroundPresetId>("purple-cosmos");
 
-      {/* メインコンテンツ */}
-      <div className="relative z-10">{children}</div>
-    </div>
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:8787";
+        const response = await fetch(`${apiUrl}/api/settings`);
+        if (response.ok) {
+          const data = await response.json();
+          setPreset(data.settings.backgroundPresetId);
+        }
+      } catch {
+        // 設定取得に失敗してもデフォルトで動作
+      }
+    };
+    fetchSettings();
+  }, []);
+
+  return (
+    <GradientBackground
+      preset={preset}
+      className={`font-sans selection:bg-purple-500 selection:text-white ${className}`}
+    >
+      {children}
+    </GradientBackground>
   );
 }

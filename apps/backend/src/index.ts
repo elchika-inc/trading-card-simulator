@@ -3,7 +3,10 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import type { QueueMessage } from "./infrastructure/events";
 import { QueueConsumer } from "./infrastructure/events";
-import { cardsRoutes, gachaRoutes } from "./presentation/routes";
+import { AssetService } from "./presentation/entrypoints/asset-service";
+import { cardsRoutes, gachaRoutes, newsRoutes } from "./presentation/routes";
+import { assetsRoutes } from "./presentation/routes/assets";
+import { settingsRoutes } from "./presentation/routes/settings";
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -55,8 +58,28 @@ app.route("/api/cards", cardsRoutes);
 // ==========================================
 app.route("/api/gacha", gachaRoutes);
 
+// ==========================================
+// Settings API（サイト設定）
+// ==========================================
+app.route("/api/settings", settingsRoutes);
+
+// ==========================================
+// Assets API（アセットメタデータ管理）
+// ==========================================
+app.route("/api/assets", assetsRoutes);
+
+// ==========================================
+// News API（ランディングページ用）
+// ==========================================
+app.route("/api/news", newsRoutes);
+
 // AppType を export（Hono RPC用）
 export type AppType = typeof app;
+
+// ==========================================
+// Service Bindings RPC用 WorkerEntrypoint
+// ==========================================
+export { AssetService };
 
 // ==========================================
 // Cloudflare Workers Queue Handler

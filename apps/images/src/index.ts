@@ -7,12 +7,11 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import type { Env } from "./container";
 import {
+  handleActivateAsset,
   handleAssetList,
   handleAssetUpload,
   handleDeleteAsset,
-  handleGetActiveAsset,
   handleServeAsset,
-  handleSetActiveAsset,
 } from "./routes/assets";
 import { handleList } from "./routes/list";
 import { handleServe } from "./routes/serve";
@@ -42,7 +41,7 @@ app.use("/*", async (c, next) => {
 app.get("/", (c) => {
   return c.json({
     service: "Trading Card Images API",
-    version: "2.1.0",
+    version: "2.2.0",
     features: {
       webpConversion: true,
       containerBased: true,
@@ -59,8 +58,7 @@ app.get("/", (c) => {
       assetUpload: "POST /api/assets",
       assetList: "GET /api/assets?type=card-back",
       assetServe: "GET /api/assets/:type/:id",
-      assetActive: "GET /api/assets/active/:type",
-      assetSetActive: "PUT /api/assets/:type/:id/activate",
+      assetActivate: "PUT /api/assets/:type/:id/activate",
       assetDelete: "DELETE /api/assets/:type/:id",
     },
   });
@@ -84,11 +82,8 @@ app.post("/api/assets", handleAssetUpload);
 // アセット一覧
 app.get("/api/assets", handleAssetList);
 
-// アクティブアセット取得（/api/assets/activeより先にマッチさせる）
-app.get("/api/assets/active/:type", handleGetActiveAsset);
-
-// アセットをアクティブに設定
-app.put("/api/assets/:type/:id/activate", handleSetActiveAsset);
+// アセットアクティベート
+app.put("/api/assets/:type/:id/activate", handleActivateAsset);
 
 // アセット削除
 app.delete("/api/assets/:type/:id", handleDeleteAsset);

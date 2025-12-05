@@ -37,7 +37,7 @@ const CARD_IMAGE_FILES = [
  */
 const getCardImage = (id: number): string => {
   const imageFile = CARD_IMAGE_FILES[(id - 1) % CARD_IMAGE_FILES.length];
-  return imageFile;
+  return imageFile ?? "";
 };
 
 /**

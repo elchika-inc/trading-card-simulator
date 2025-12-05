@@ -1,3 +1,4 @@
+import type { FrameColor } from "@repo/types";
 import { CardCreatedEvent } from "../events/card-created";
 import { AggregateRoot } from "../shared/aggregate-root";
 import { CardId } from "./card-id";
@@ -14,10 +15,11 @@ export interface CardProps {
   type: string;
   holoType: string;
   textStyle: string;
-  imageUrl: string;
+  assetId: string | null;
   description: string;
   iconName: string;
   rarity: string;
+  frameColor?: FrameColor;
 }
 
 /**
@@ -29,10 +31,11 @@ export class Card extends AggregateRoot<CardId> {
   private readonly _type: string;
   private readonly _holoType: HoloType;
   private readonly _textStyle: TextStyle;
-  private readonly _imageUrl: string;
+  private readonly _assetId: string | null;
   private readonly _description: string;
   private readonly _iconName: string;
   private readonly _rarity: Rarity;
+  private readonly _frameColor?: FrameColor;
 
   private constructor(
     id: CardId,
@@ -40,20 +43,22 @@ export class Card extends AggregateRoot<CardId> {
     type: string,
     holoType: HoloType,
     textStyle: TextStyle,
-    imageUrl: string,
+    assetId: string | null,
     description: string,
     iconName: string,
     rarity: Rarity,
+    frameColor?: FrameColor,
   ) {
     super(id);
     this._name = name;
     this._type = type;
     this._holoType = holoType;
     this._textStyle = textStyle;
-    this._imageUrl = imageUrl;
+    this._assetId = assetId;
     this._description = description;
     this._iconName = iconName;
     this._rarity = rarity;
+    this._frameColor = frameColor;
   }
 
   /**
@@ -66,10 +71,11 @@ export class Card extends AggregateRoot<CardId> {
       props.type,
       HoloType.create(props.holoType),
       TextStyle.create(props.textStyle),
-      props.imageUrl,
+      props.assetId,
       props.description,
       props.iconName,
       Rarity.create(props.rarity),
+      props.frameColor,
     );
 
     // ドメインイベントを発行
@@ -89,10 +95,11 @@ export class Card extends AggregateRoot<CardId> {
       props.type,
       HoloType.create(props.holoType),
       TextStyle.create(props.textStyle),
-      props.imageUrl,
+      props.assetId,
       props.description,
       props.iconName,
       Rarity.create(props.rarity),
+      props.frameColor,
     );
   }
 
@@ -117,8 +124,8 @@ export class Card extends AggregateRoot<CardId> {
     return this._textStyle;
   }
 
-  getImageUrl(): string {
-    return this._imageUrl;
+  getAssetId(): string | null {
+    return this._assetId;
   }
 
   getDescription(): string {
@@ -131,6 +138,10 @@ export class Card extends AggregateRoot<CardId> {
 
   getRarity(): Rarity {
     return this._rarity;
+  }
+
+  getFrameColor(): FrameColor | undefined {
+    return this._frameColor;
   }
 
   /**
@@ -154,6 +165,7 @@ export class Card extends AggregateRoot<CardId> {
     description: string;
     iconName: string;
     rarity: RarityType;
+    frameColor?: FrameColor;
     count: number;
   } {
     return {
@@ -162,10 +174,11 @@ export class Card extends AggregateRoot<CardId> {
       type: this._type,
       holoType: this._holoType.getValue(),
       textStyle: this._textStyle.getValue(),
-      image: this._imageUrl,
+      image: this._assetId ?? "",
       description: this._description,
       iconName: this._iconName,
       rarity: this._rarity.getValue(),
+      frameColor: this._frameColor,
       count: 1, // デフォルト値（所持枚数は別途管理）
     };
   }

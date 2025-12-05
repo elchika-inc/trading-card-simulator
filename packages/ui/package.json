@@ -5,7 +5,12 @@
   "type": "module",
   "exports": {
     "./holo-card": "./src/holo-card.tsx",
-    "./card-styles": "./src/card-styles.ts"
+    "./card-styles": "./src/card-styles.ts",
+    "./gradient-background": "./src/gradient-background.tsx",
+    "./particle-background": "./src/particle-background.tsx",
+    "./background-presets": "./src/background-presets.ts",
+    "./card-back-preview": "./src/card-back-preview.tsx",
+    "./pack-visual": "./src/pack-visual.tsx"
   },
   "dependencies": {
     "@repo/types": "workspace:*",

@@ -1,5 +1,16 @@
-import type { CardRepository } from "@/domain/card/card-repository";
-import type { EventPublisher } from "@/infrastructure/events/event-publisher";
+import type { FrameColor } from "@repo/types";
+import { Card, CardId, type CardRepository } from "../../domain/card";
+import type { GachaPackRepository } from "../../domain/gacha";
+import type { EventPublisher } from "../../infrastructure/events/event-publisher";
+
+/**
+ * パック割当情報（入力用）
+ */
+export interface PackAssignmentInput {
+  packId: string;
+  weight: number;
+  isPickup?: boolean;
+}
 
 /**
  * CreateCardUseCase Input DTO
@@ -12,25 +23,15 @@ export interface CreateCardInput {
   description?: string;
   iconName?: string;
   rarity: string;
-  imageWorkerUrl: string; // 環境変数から渡される
+  frameColor?: FrameColor;
+  packAssignments?: PackAssignmentInput[];
 }
 
 /**
  * CreateCardUseCase Output DTO
  */
 export interface CreateCardOutput {
-  card: {
-    id: number;
-    count: number;
-    name: string;
-    type: string;
-    holoType: string;
-    textStyle: string;
-    image: string;
-    description: string;
-    iconName: string;
-    rarity: string;
-  };
+  card: ReturnType<Card["toPlainObject"]>;
 }
 
 /**
@@ -40,6 +41,7 @@ export interface CreateCardOutput {
 export class CreateCardUseCase {
   constructor(
     private readonly cardRepository: CardRepository,
+    private readonly gachaPackRepository: GachaPackRepository,
     private readonly eventPublisher: EventPublisher,
   ) {}
 
@@ -48,47 +50,44 @@ export class CreateCardUseCase {
     const count = await this.cardRepository.count();
     const newId = count + 1;
 
-    // 2. 画像URLを構築
-    const imageUrl = `${input.imageWorkerUrl}/serve/${input.imageId}`;
-
-    // 3. Card.create()でカードエンティティを作成（ドメインイベント発行）
+    // 2. Card.create()でカードエンティティを作成（ドメインイベント発行）
+    // assetIdには画像IDを設定（URLはフロントエンド側で構築）
     const card = Card.create({
       id: newId,
       name: input.name,
       type: `Style: ${input.textStyle}, Anim: ${input.holoType}`,
       holoType: input.holoType,
       textStyle: input.textStyle,
-      imageUrl,
+      assetId: input.imageId,
       description: input.description || "",
       iconName: input.iconName || "Star",
       rarity: input.rarity,
+      frameColor: input.frameColor,
     });
 
-    // 4. 永続化
+    // 3. 永続化
     await this.cardRepository.save(card);
+
+    // 4. パック割当を処理（指定された場合）
+    if (input.packAssignments && input.packAssignments.length > 0) {
+      const rates = input.packAssignments.map((assignment) => ({
+        packId: assignment.packId,
+        weight: assignment.weight,
+        isPickup: assignment.isPickup ?? false,
+      }));
+      await this.gachaPackRepository.updateCardRates(CardId.create(newId), rates);
+    }
 
     // 5. ドメインイベントを発行
     const events = card.domainEvents;
     if (events.length > 0) {
-      await this.eventPublisher.publishAll(events);
+      await this.eventPublisher.publishAll([...events]);
       card.clearDomainEvents();
     }
 
     // 6. Output DTOに変換して返す
-    const plainObject = card.toPlainObject();
     return {
-      card: {
-        id: plainObject.id,
-        count: plainObject.count,
-        name: plainObject.name,
-        type: plainObject.type,
-        holoType: plainObject.holoType,
-        textStyle: plainObject.textStyle,
-        image: plainObject.image,
-        description: plainObject.description,
-        iconName: plainObject.iconName,
-        rarity: plainObject.rarity,
-      },
+      card: card.toPlainObject(),
     };
   }
 }

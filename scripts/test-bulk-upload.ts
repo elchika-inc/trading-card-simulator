@@ -1,5 +1,13 @@
 /**
- * 一括アップロードテストスクリプト
+ * 画像一括アップロードテストスクリプト
+ * /api/images/bulk エンドポイントをテスト（アセットAPIではなく画像API）
+ *
+ * Usage:
+ *   bun run scripts/test-bulk-upload.ts
+ *
+ * Note:
+ *   - アセットAPI（/api/assets）を使う場合は test-asset-api.ts を使用
+ *   - このスクリプトは画像API（DB連携なし）のテスト用
  */
 
 import { readdir, readFile } from "node:fs/promises";

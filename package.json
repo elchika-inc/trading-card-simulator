@@ -21,6 +21,8 @@
     "deploy:images": "cd apps/images && bun run deploy",
     "deploy": "bun run deploy:pages && bun run deploy:workers && bun run deploy:images",
     "migrate:images": "bun run scripts/migrate-images.ts",
+    "setup:local": "bun run scripts/setup-local.ts",
+    "setup:db": "cd apps/backend && bunx wrangler d1 migrations apply trading-cards --local",
     "clean": "rm -rf node_modules apps/*/node_modules packages/*/node_modules bun.lockb apps/*/.vite apps/*/.wrangler && bun install",
     "lint": "biome check apps packages",
     "lint:fix": "biome check --write apps packages --unsafe",

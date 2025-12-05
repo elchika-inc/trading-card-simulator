@@ -1,4 +1,4 @@
-import type { Card } from "@repo/types";
+import type { Card, GachaPackWithAssets } from "@repo/types";
 import { ArrowLeft, RefreshCcw, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { PageLayout } from "@/components/app/page-layout";
@@ -7,7 +7,12 @@ import { PackExperience } from "./pack-experience";
 import { PackInspecting } from "./pack-inspecting";
 import { PackResults } from "./pack-results";
 
-interface PackAssets {
+/**
+ * PackExperienceが期待するアセット形式
+ * file: 実際の画像URL
+ * fallback: fileが読み込めない場合のフォールバック画像URL
+ */
+interface PackExperienceAssets {
   pack: { file: string; fallback: string };
   packBack: { file: string; fallback: string };
   cardBack: { file: string; fallback: string };
@@ -15,29 +20,44 @@ interface PackAssets {
 
 interface PackOpeningProps {
   cards: Card[];
-  packType: string;
+  packData: GachaPackWithAssets;
   backImage?: string | null;
-  assets?: PackAssets;
+  packFrontUrl?: string | null;
+  packBackUrl?: string | null;
+  cardBackUrl?: string | null;
   onReset: () => void;
 }
 
 /**
- * デフォルトのアセット設定
+ * デフォルトのプレースホルダー画像（CSSで生成されたデザインの代わりに使用）
+ * 実際には透明な1x1画像などを使用することも可能
  */
-const DEFAULT_ASSETS: PackAssets = {
-  pack: {
-    file: "/assets/packs/pack.png",
-    fallback: "https://placehold.co/400x600/3b82f6/ffffff?text=Pack+Image",
-  },
-  packBack: {
-    file: "/assets/packs/pack-back.png",
-    fallback: "https://placehold.co/400x600/1e40af/ffffff?text=Pack+Back",
-  },
-  cardBack: {
-    file: "/assets/card-back.png",
-    fallback: "https://placehold.co/300x420/1e293b/64748b?text=Card+Back",
-  },
-};
+const DEFAULT_PLACEHOLDER = "/assets/placeholder-pack.png";
+const DEFAULT_CARD_BACK_PLACEHOLDER = "/assets/placeholder-card-back.png";
+
+/**
+ * アセットURLをPackExperience用の形式に変換
+ */
+function buildPackExperienceAssets(
+  packFrontUrl: string | null | undefined,
+  packBackUrl: string | null | undefined,
+  cardBackUrl: string | null | undefined,
+): PackExperienceAssets {
+  return {
+    pack: {
+      file: packFrontUrl || DEFAULT_PLACEHOLDER,
+      fallback: DEFAULT_PLACEHOLDER,
+    },
+    packBack: {
+      file: packBackUrl || DEFAULT_PLACEHOLDER,
+      fallback: DEFAULT_PLACEHOLDER,
+    },
+    cardBack: {
+      file: cardBackUrl || DEFAULT_CARD_BACK_PLACEHOLDER,
+      fallback: DEFAULT_CARD_BACK_PLACEHOLDER,
+    },
+  };
+}
 
 /**
  * パック開封メインコンポーネント
@@ -45,13 +65,17 @@ const DEFAULT_ASSETS: PackAssets = {
  */
 export function PackOpening({
   cards,
-  packType: _packType,
+  packData,
   backImage = null,
-  assets = DEFAULT_ASSETS,
+  packFrontUrl = null,
+  packBackUrl = null,
+  cardBackUrl = null,
   onReset,
 }: PackOpeningProps) {
-  // _packType は将来的にパック種類ごとのアセット切り替えに使用予定
   const [gameState, setGameState] = useState<"experience" | "inspecting" | "results">("experience");
+
+  // PackExperience用のアセット形式に変換
+  const experienceAssets = buildPackExperienceAssets(packFrontUrl, packBackUrl, cardBackUrl);
 
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [isCardFlipped, setIsCardFlipped] = useState(false);
@@ -151,7 +175,11 @@ export function PackOpening({
         {/* Three.js体験（パック選択→開封） */}
         {gameState === "experience" && (
           <div className="w-full h-screen">
-            <PackExperience cards={cards} assets={assets} onCardsReady={handleCardsReady} />
+            <PackExperience
+              cards={cards}
+              assets={experienceAssets}
+              onCardsReady={handleCardsReady}
+            />
           </div>
         )}
 

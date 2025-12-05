@@ -1,11 +1,12 @@
-import { ChevronLeft, ChevronRight, Coins, Home, Layers } from "lucide-react";
-import { useState } from "react";
+import type { GachaPackWithAssets } from "@repo/types";
+import { PackVisual } from "@repo/ui/pack-visual";
+import { ChevronLeft, ChevronRight, Coins, Home, Layers, Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { CoinDisplay } from "@/components/app/pack-select/coin-display";
-import { PackVisual } from "@/components/app/pack-select/pack-visual";
 import { PageLayout } from "@/components/app/page-layout";
 import { useUser } from "@/contexts/user-context";
-import { PACK_TYPES } from "@/data/pack-types";
+import { getGachaPacks } from "@/lib/api-client";
 
 /**
  * パック一覧・選択ページ
@@ -14,19 +15,60 @@ import { PACK_TYPES } from "@/data/pack-types";
 export function PackList() {
   const navigate = useNavigate();
   const { coins } = useUser();
-  const [activeIndex, setActiveIndex] = useState(1);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [packs, setPacks] = useState<GachaPackWithAssets[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // パック一覧を取得
+  useEffect(() => {
+    getGachaPacks().then((data) => {
+      setPacks(data);
+      setLoading(false);
+      // 初期選択を中央に
+      if (data.length > 0) {
+        setActiveIndex(Math.floor(data.length / 2));
+      }
+    });
+  }, []);
 
   const prevPack = () => {
-    setActiveIndex((prev) => (prev > 0 ? prev - 1 : PACK_TYPES.length - 1));
+    setActiveIndex((prev) => (prev > 0 ? prev - 1 : packs.length - 1));
   };
 
   const nextPack = () => {
-    setActiveIndex((prev) => (prev < PACK_TYPES.length - 1 ? prev + 1 : 0));
+    setActiveIndex((prev) => (prev < packs.length - 1 ? prev + 1 : 0));
   };
 
   const handlePackSelect = (packId: string) => {
     navigate(`/packs/${packId}`);
   };
+
+  if (loading) {
+    return (
+      <PageLayout>
+        <div className="min-h-screen flex items-center justify-center">
+          <Loader2 className="w-8 h-8 animate-spin text-zinc-400" />
+        </div>
+      </PageLayout>
+    );
+  }
+
+  if (packs.length === 0) {
+    return (
+      <PageLayout>
+        <div className="min-h-screen flex flex-col items-center justify-center gap-4">
+          <p className="text-zinc-400">パックがありません</p>
+          <button
+            onClick={() => navigate("/")}
+            className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+            type="button"
+          >
+            トップに戻る
+          </button>
+        </div>
+      </PageLayout>
+    );
+  }
 
   return (
     <PageLayout>
@@ -61,10 +103,10 @@ export function PackList() {
 
         {/* 3D Carousel Area */}
         <div className="relative w-full h-[600px] flex items-center justify-center perspective-container z-10">
-          {PACK_TYPES.map((pack, index) => {
+          {packs.map((pack, index) => {
             const offset = index - activeIndex;
             const isActive = offset === 0;
-            const canAfford = coins >= pack.price;
+            const canAfford = coins >= pack.cost;
 
             const translateX = offset * 240;
             const translateZ = Math.abs(offset) * -200;
@@ -109,17 +151,50 @@ export function PackList() {
                     />
                   )}
 
-                  <PackVisual type={pack.id} isHovered={isActive} isSelected={isActive} />
+                  <PackVisual
+                    frontImageUrl={pack.frontImageUrl}
+                    backImageUrl={pack.backImageUrl}
+                    packData={{
+                      name: pack.name,
+                      description: pack.description,
+                      icon: pack.icon,
+                      colorFrom: pack.colorFrom,
+                      colorTo: pack.colorTo,
+                      accentColor: pack.accentColor,
+                      rareRate: pack.rareRate,
+                      subTitle: pack.subTitle,
+                      contentsInfo: pack.contentsInfo,
+                      backTitle: pack.backTitle,
+                      featureTitle: pack.featureTitle,
+                    }}
+                    isHovered={isActive}
+                    isSelected={isActive}
+                    className="w-64 h-96"
+                  />
 
                   <div
-                    className="absolute inset-0 bg-black transition-opacity duration-500 rounded-xl z-50 pointer-events-none"
+                    className="absolute inset-0 bg-black transition-opacity duration-500 z-50 pointer-events-none"
                     style={{ opacity: isActive ? 0 : 0.6 }}
                   />
 
                   <div className="absolute top-full left-0 right-0 h-full transform scale-y-[-1] opacity-30 pointer-events-none reflection-mask mt-2">
-                    <PackVisual type={pack.id} isHovered={false} isSelected={false} />
+                    <PackVisual
+                      frontImageUrl={pack.frontImageUrl}
+                      packData={{
+                        name: pack.name,
+                        description: pack.description,
+                        icon: pack.icon,
+                        colorFrom: pack.colorFrom,
+                        colorTo: pack.colorTo,
+                        accentColor: pack.accentColor,
+                        rareRate: pack.rareRate,
+                      }}
+                      isHovered={false}
+                      isSelected={false}
+                      className="w-64 h-96"
+                    />
                     <div
-                      className="absolute inset-0 bg-black transition-opacity duration-500 rounded-xl z-50"
+                      className="absolute inset-0 bg-black transition-opacity duration-500 z-50"
                       style={{ opacity: isActive ? 0 : 0.6 }}
                     />
                   </div>
@@ -141,7 +216,7 @@ export function PackList() {
                       } border shadow-lg`}
                     >
                       <Coins size={16} className={canAfford ? "fill-yellow-400/20" : ""} />
-                      <span className="font-bold font-mono text-lg">{pack.price}</span>
+                      <span className="font-bold font-mono text-lg">{pack.cost}</span>
                     </div>
                   </div>
 

@@ -53,8 +53,8 @@ export class D1CardRepository implements CardRepository {
       .prepare(
         `
         INSERT OR REPLACE INTO cards
-        (id, name, type, holo_type, text_style, image_url, description, icon_name, rarity)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        (id, name, type, holo_type, text_style, asset_id, description, icon_name, rarity, frame_color)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
       )
       .bind(
@@ -63,10 +63,11 @@ export class D1CardRepository implements CardRepository {
         row.type,
         row.holo_type,
         row.text_style,
-        row.image_url,
+        row.asset_id,
         row.description,
         row.icon_name,
         row.rarity,
+        row.frame_color,
       )
       .run();
   }

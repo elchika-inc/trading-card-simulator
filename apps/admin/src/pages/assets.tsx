@@ -1,20 +1,19 @@
-import { ASSET_TYPE_LABELS, type AssetType } from "@repo/types";
-import { ArrowLeft } from "lucide-react";
+import { ASSET_CATEGORY_LABELS, type AssetCategory } from "@repo/types";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { AdminLayout } from "@/components/admin/admin-layout";
 import { AssetList } from "@/components/admin/asset-list";
 import { AssetUpload } from "@/components/admin/asset-upload";
-import { Button } from "@/components/ui/button";
+import { PackList } from "@/components/admin/pack-list";
+import { PackUpload } from "@/components/admin/pack-upload";
 import { Separator } from "@/components/ui/separator";
 
-const ASSET_TYPES: AssetType[] = ["card-back", "pack-front", "pack-back"];
+const ASSET_CATEGORIES: AssetCategory[] = ["card", "pack"];
 
 /**
  * アセット管理ページ
  */
 export function AssetsPage() {
-  const navigate = useNavigate();
-  const [selectedType, setSelectedType] = useState<AssetType>("card-back");
+  const [selectedCategory, setSelectedCategory] = useState<AssetCategory>("card");
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const handleUploadSuccess = () => {
@@ -22,68 +21,59 @@ export function AssetsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* ヘッダー */}
-      <header className="bg-white border-b sticky top-0 z-10 shadow-sm">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate("/")}
-              className="flex items-center gap-2"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              戻る
-            </Button>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">アセット管理</h1>
-              <p className="text-sm text-gray-600">
-                カード背面画像・パック画像のアップロードと管理
-              </p>
-            </div>
-          </div>
-        </div>
-      </header>
-
+    <AdminLayout title="アセット管理" description="カード画像・パック画像のアップロードと管理">
       {/* タブ切り替え */}
-      <div className="bg-white border-b">
-        <div className="container mx-auto px-4">
-          <div className="flex gap-1">
-            {ASSET_TYPES.map((type) => (
-              <button
-                key={type}
-                type="button"
-                onClick={() => setSelectedType(type)}
-                className={`px-4 py-3 text-sm font-medium transition-colors border-b-2 -mb-px ${
-                  selectedType === type
-                    ? "border-blue-600 text-blue-600"
-                    : "border-transparent text-gray-600 hover:text-gray-900"
-                }`}
-              >
-                {ASSET_TYPE_LABELS[type]}
-              </button>
-            ))}
-          </div>
+      <div className="bg-white/10 rounded-lg mb-6">
+        <div className="flex gap-1 p-1">
+          {ASSET_CATEGORIES.map((category) => (
+            <button
+              key={category}
+              type="button"
+              onClick={() => setSelectedCategory(category)}
+              className={`px-4 py-2 text-sm font-medium transition-colors rounded ${
+                selectedCategory === category
+                  ? "bg-white/20 text-white"
+                  : "text-white/60 hover:text-white hover:bg-white/10"
+              }`}
+            >
+              {ASSET_CATEGORY_LABELS[category]}
+            </button>
+          ))}
         </div>
       </div>
 
       {/* メインコンテンツ */}
-      <main className="container mx-auto px-4 py-8 max-w-6xl">
-        <div className="space-y-8">
-          {/* アップロードセクション */}
-          <section>
-            <AssetUpload assetType={selectedType} onUploadSuccess={handleUploadSuccess} />
-          </section>
+      <div className="space-y-8">
+        {selectedCategory === "card" && (
+          <>
+            {/* カード画像: 一括アップロード対応 */}
+            <section>
+              <AssetUpload assetType="card" onUploadSuccess={handleUploadSuccess} multiple />
+            </section>
 
-          <Separator />
+            <Separator className="bg-white/20" />
 
-          {/* 一覧セクション */}
-          <section>
-            <AssetList assetType={selectedType} refreshTrigger={refreshTrigger} />
-          </section>
-        </div>
-      </main>
-    </div>
+            <section>
+              <AssetList assetType="card" refreshTrigger={refreshTrigger} />
+            </section>
+          </>
+        )}
+
+        {selectedCategory === "pack" && (
+          <>
+            {/* パック: 表面・裏面を同時アップロード */}
+            <section>
+              <PackUpload onUploadSuccess={handleUploadSuccess} />
+            </section>
+
+            <Separator className="bg-white/20" />
+
+            <section>
+              <PackList refreshTrigger={refreshTrigger} />
+            </section>
+          </>
+        )}
+      </div>
+    </AdminLayout>
   );
 }

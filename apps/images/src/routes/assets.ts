@@ -4,20 +4,17 @@
  *
  * POST /api/assets - アセットアップロード
  * GET /api/assets - アセット一覧
- * GET /api/assets/active/:type - アクティブなアセット取得
- * PUT /api/assets/:id/activate - アセットをアクティブに設定
- * DELETE /api/assets/:id - アセット削除
+ * DELETE /api/assets/:type/:id - アセット削除
  */
 
 import type {
-  ActiveAssetResponse,
   AssetDeleteResponse,
   AssetListResponse,
   AssetMetadata,
-  AssetSetActiveResponse,
   AssetType,
   AssetUploadResponse,
   Env,
+  RegisterAssetInput,
 } from "@repo/types";
 import type { Context } from "hono";
 import { transformImage, transformImageLocal } from "../container";
@@ -25,42 +22,80 @@ import { deleteFromR2, listFromR2, uploadToR2 } from "../lib/r2";
 import { validateImageFile } from "../lib/validation";
 
 const ASSET_PREFIX = "assets";
-const ACTIVE_MARKER_KEY = `${ASSET_PREFIX}/.active`;
 
 /**
- * アクティブアセット設定ファイルを読み込み
+ * バックエンドAPIのURL取得
  */
-async function getActiveAssets(bucket: R2Bucket): Promise<Record<AssetType, string | null>> {
-  const obj = await bucket.get(ACTIVE_MARKER_KEY);
-  if (!obj) {
-    return {
-      "card-back": null,
-      "pack-front": null,
-      "pack-back": null,
-    };
+function getBackendApiUrl(c: Context<{ Bindings: Env }>): string {
+  return c.env.BACKEND_API_URL || "http://localhost:8787";
+}
+
+/**
+ * DBにアセットを登録（Service Bindings RPC経由、またはHTTP経由）
+ */
+async function registerAssetToDb(
+  c: Context<{ Bindings: Env }>,
+  input: RegisterAssetInput,
+): Promise<boolean> {
+  // Service Bindings が使える場合はそれを使用（本番環境）
+  if (c.env.BACKEND_API) {
+    try {
+      const result = await c.env.BACKEND_API.registerAsset(input);
+      return result.success;
+    } catch (error) {
+      console.error("Failed to register asset via Service Bindings:", error);
+    }
   }
+
+  // HTTP経由でバックエンドAPIを呼び出し（ローカル開発用フォールバック）
   try {
-    const text = await obj.text();
-    return JSON.parse(text);
-  } catch {
-    return {
-      "card-back": null,
-      "pack-front": null,
-      "pack-back": null,
-    };
+    const backendUrl = getBackendApiUrl(c);
+    const response = await fetch(`${backendUrl}/api/assets`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error("Failed to register asset via HTTP:", errorData);
+      return false;
+    }
+
+    const result = await response.json();
+    return result.success;
+  } catch (error) {
+    console.error("Failed to register asset via HTTP:", error);
+    return false;
   }
 }
 
 /**
- * アクティブアセット設定を保存
+ * DBからアセットを削除（Service Bindings RPC経由、またはHTTP経由）
  */
-async function saveActiveAssets(
-  bucket: R2Bucket,
-  activeAssets: Record<AssetType, string | null>,
-): Promise<void> {
-  await bucket.put(ACTIVE_MARKER_KEY, JSON.stringify(activeAssets), {
-    httpMetadata: { contentType: "application/json" },
-  });
+async function deleteAssetFromDb(c: Context<{ Bindings: Env }>, assetId: string): Promise<boolean> {
+  // Service Bindings が使える場合はそれを使用（本番環境）
+  if (c.env.BACKEND_API) {
+    try {
+      await c.env.BACKEND_API.deleteAsset(assetId);
+      return true;
+    } catch (error) {
+      console.error("Failed to delete asset via Service Bindings:", error);
+    }
+  }
+
+  // HTTP経由でバックエンドAPIを呼び出し（ローカル開発用フォールバック）
+  try {
+    const backendUrl = getBackendApiUrl(c);
+    const response = await fetch(`${backendUrl}/api/assets/${assetId}`, {
+      method: "DELETE",
+    });
+
+    return response.ok;
+  } catch (error) {
+    console.error("Failed to delete asset via HTTP:", error);
+    return false;
+  }
 }
 
 /**
@@ -96,12 +131,14 @@ export async function handleAssetUpload(c: Context<{ Bindings: Env }>): Promise<
     const formData = await c.req.formData();
     const file = formData.get("file") as File | null;
     const assetType = formData.get("type") as AssetType | null;
+    // パック画像のセットID（表面と裏面を紐付けるために使用）
+    const packSetId = formData.get("packSetId") as string | null;
 
     if (!file) {
       return c.json({ success: false, error: "No file provided" }, 400);
     }
 
-    if (!assetType || !["card-back", "pack-front", "pack-back"].includes(assetType)) {
+    if (!assetType || !["card", "card-back", "pack-front", "pack-back"].includes(assetType)) {
       return c.json({ success: false, error: "Invalid asset type" }, 400);
     }
 
@@ -120,11 +157,13 @@ export async function handleAssetUpload(c: Context<{ Bindings: Env }>): Promise<
     const ext = file.name.split(".").pop() ?? "png";
     const key = `${ASSET_PREFIX}/${assetType}/${uuid}.${ext}`;
 
+    // packSetIdをメタデータに含める
     const fileBuffer = await file.arrayBuffer();
     await uploadToR2(bucket, key, fileBuffer, {
       contentType: file.type,
       originalName: file.name,
       size: file.size,
+      packSetId: packSetId ?? undefined,
     });
 
     // WebP変換
@@ -136,23 +175,29 @@ export async function handleAssetUpload(c: Context<{ Bindings: Env }>): Promise<
         contentType: "image/webp",
         originalName: `${uuid}.webp`,
         size: webpBuffer.byteLength,
+        packSetId: packSetId ?? undefined,
       });
       hasWebP = true;
     } catch (error) {
       console.error("WebP conversion failed (original asset saved):", error);
     }
 
-    // アクティブアセットを確認（初回アップロード時は自動でアクティブに）
-    const activeAssets = await getActiveAssets(bucket);
-    const isActive = activeAssets[assetType] === null;
-    if (isActive) {
-      activeAssets[assetType] = `${uuid}.${ext}`;
-      await saveActiveAssets(bucket, activeAssets);
-    }
+    // DBにアセット情報を登録（Service Bindings RPC経由）
+    const assetId = `${uuid}.${ext}`;
+    await registerAssetToDb(c, {
+      id: assetId,
+      type: assetType,
+      originalName: file.name,
+      contentType: file.type,
+      size: file.size,
+      r2Key: key,
+      hasWebP,
+      packSetId: packSetId ?? undefined,
+    });
 
     const baseUrl = new URL(c.req.url).origin;
     const assetMetadata: AssetMetadata = {
-      id: `${uuid}.${ext}`,
+      id: assetId,
       type: assetType,
       url: `${baseUrl}/api/assets/${assetType}/${uuid}.${ext}?format=auto`,
       thumbnailUrl: `${baseUrl}/api/assets/${assetType}/${uuid}.${ext}?width=320&format=auto`,
@@ -160,8 +205,8 @@ export async function handleAssetUpload(c: Context<{ Bindings: Env }>): Promise<
       contentType: file.type,
       size: file.size,
       uploadedAt: new Date().toISOString(),
-      isActive,
       hasWebP,
+      packSetId: packSetId ?? undefined,
     };
 
     const response: AssetUploadResponse = {
@@ -199,7 +244,6 @@ export async function handleAssetList(c: Context<{ Bindings: Env }>): Promise<Re
     const prefix = assetType ? `${ASSET_PREFIX}/${assetType}/` : `${ASSET_PREFIX}/`;
     const result = await listFromR2(bucket, { prefix, cursor, limit: 100 });
 
-    const activeAssets = await getActiveAssets(bucket);
     const baseUrl = new URL(c.req.url).origin;
 
     const assets: AssetMetadata[] = [];
@@ -211,7 +255,7 @@ export async function handleAssetList(c: Context<{ Bindings: Env }>): Promise<Re
 
       // キーからtype とid を抽出
       const parts = obj.key.replace(`${ASSET_PREFIX}/`, "").split("/");
-      if (parts.length !== 2) continue;
+      if (parts.length !== 2 || !parts[0] || !parts[1]) continue;
 
       const type = parts[0] as AssetType;
       const id = parts[1];
@@ -229,8 +273,8 @@ export async function handleAssetList(c: Context<{ Bindings: Env }>): Promise<Re
         contentType: obj.httpMetadata?.contentType ?? "image/png",
         size: obj.size,
         uploadedAt: obj.customMetadata?.uploadedAt ?? obj.uploaded.toISOString(),
-        isActive: activeAssets[type] === id,
         hasWebP: webpExists,
+        packSetId: obj.customMetadata?.packSetId,
       });
     }
 
@@ -257,78 +301,6 @@ export async function handleAssetList(c: Context<{ Bindings: Env }>): Promise<Re
 }
 
 /**
- * アクティブアセット取得
- * GET /api/assets/active/:type
- */
-export async function handleGetActiveAsset(c: Context<{ Bindings: Env }>): Promise<Response> {
-  try {
-    const bucket = c.env.CARD_IMAGES;
-    if (!bucket) {
-      return c.json({ success: false, error: "R2 bucket not configured" }, 500);
-    }
-
-    const assetType = c.req.param("type") as AssetType;
-    if (!["card-back", "pack-front", "pack-back"].includes(assetType)) {
-      return c.json({ success: false, error: "Invalid asset type" }, 400);
-    }
-
-    const activeAssets = await getActiveAssets(bucket);
-    const activeId = activeAssets[assetType];
-
-    if (!activeId) {
-      const response: ActiveAssetResponse = {
-        success: true,
-        data: { asset: null },
-      };
-      return c.json(response);
-    }
-
-    const key = `${ASSET_PREFIX}/${assetType}/${activeId}`;
-    const obj = await bucket.head(key);
-
-    if (!obj) {
-      // アクティブなアセットが削除されていた場合
-      activeAssets[assetType] = null;
-      await saveActiveAssets(bucket, activeAssets);
-      const response: ActiveAssetResponse = {
-        success: true,
-        data: { asset: null },
-      };
-      return c.json(response);
-    }
-
-    const baseUrl = new URL(c.req.url).origin;
-    const response: ActiveAssetResponse = {
-      success: true,
-      data: {
-        asset: {
-          id: activeId,
-          type: assetType,
-          url: `${baseUrl}/api/assets/${assetType}/${activeId}?format=auto`,
-          thumbnailUrl: `${baseUrl}/api/assets/${assetType}/${activeId}?width=320&format=auto`,
-          originalName: obj.customMetadata?.originalName ?? activeId,
-          contentType: obj.httpMetadata?.contentType ?? "image/png",
-          size: obj.size,
-          uploadedAt: obj.customMetadata?.uploadedAt ?? obj.uploaded.toISOString(),
-          isActive: true,
-        },
-      },
-    };
-
-    return c.json(response);
-  } catch (error) {
-    console.error("Get active asset error:", error);
-    return c.json(
-      {
-        success: false,
-        error: error instanceof Error ? error.message : "Get failed",
-      },
-      500,
-    );
-  }
-}
-
-/**
  * アセット配信
  * GET /api/assets/:type/:id
  */
@@ -342,7 +314,7 @@ export async function handleServeAsset(c: Context<{ Bindings: Env }>): Promise<R
     const assetType = c.req.param("type") as AssetType;
     const id = c.req.param("id");
 
-    if (!["card-back", "pack-front", "pack-back"].includes(assetType)) {
+    if (!["card", "card-back", "pack-front", "pack-back"].includes(assetType)) {
       return c.json({ success: false, error: "Invalid asset type" }, 400);
     }
 
@@ -419,43 +391,69 @@ export async function handleServeAsset(c: Context<{ Bindings: Env }>): Promise<R
  * アセットをアクティブに設定
  * PUT /api/assets/:type/:id/activate
  */
-export async function handleSetActiveAsset(c: Context<{ Bindings: Env }>): Promise<Response> {
+export async function handleActivateAsset(c: Context<{ Bindings: Env }>): Promise<Response> {
   try {
-    const bucket = c.env.CARD_IMAGES;
-    if (!bucket) {
-      return c.json({ success: false, error: "R2 bucket not configured" }, 500);
-    }
-
     const assetType = c.req.param("type") as AssetType;
     const id = c.req.param("id");
 
-    if (!["card-back", "pack-front", "pack-back"].includes(assetType)) {
+    if (!["card", "card-back", "pack-front", "pack-back"].includes(assetType)) {
       return c.json({ success: false, error: "Invalid asset type" }, 400);
     }
 
-    // アセットが存在するか確認
-    const key = `${ASSET_PREFIX}/${assetType}/${id}`;
-    const obj = await bucket.head(key);
-    if (!obj) {
-      return c.json({ success: false, error: "Asset not found" }, 404);
+    // Backend API にリクエストを転送
+    if (c.env.BACKEND_API) {
+      try {
+        await c.env.BACKEND_API.activateAsset(id, assetType);
+        return c.json({
+          success: true,
+          message: `Asset ${id} set as active for ${assetType}`,
+        });
+      } catch (error) {
+        console.error("Failed to activate asset via Service Bindings:", error);
+      }
     }
 
-    const activeAssets = await getActiveAssets(bucket);
-    activeAssets[assetType] = id;
-    await saveActiveAssets(bucket, activeAssets);
+    // HTTP経由でバックエンドAPIを呼び出し（ローカル開発用フォールバック）
+    try {
+      const backendUrl = getBackendApiUrl(c);
+      const response = await fetch(`${backendUrl}/api/assets/${id}/activate`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: assetType }),
+      });
 
-    const response: AssetSetActiveResponse = {
-      success: true,
-      message: `Asset ${id} set as active for ${assetType}`,
-    };
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error("Failed to activate asset via HTTP:", errorData);
+        return c.json(
+          {
+            success: false,
+            error: "Failed to activate asset",
+          },
+          500,
+        );
+      }
 
-    return c.json(response);
+      return c.json({
+        success: true,
+        message: `Asset ${id} set as active for ${assetType}`,
+      });
+    } catch (error) {
+      console.error("Failed to activate asset via HTTP:", error);
+      return c.json(
+        {
+          success: false,
+          error: error instanceof Error ? error.message : "Activation failed",
+        },
+        500,
+      );
+    }
   } catch (error) {
-    console.error("Set active asset error:", error);
+    console.error("Activate asset error:", error);
     return c.json(
       {
         success: false,
-        error: error instanceof Error ? error.message : "Set active failed",
+        error: error instanceof Error ? error.message : "Activation failed",
       },
       500,
     );
@@ -476,7 +474,7 @@ export async function handleDeleteAsset(c: Context<{ Bindings: Env }>): Promise<
     const assetType = c.req.param("type") as AssetType;
     const id = c.req.param("id");
 
-    if (!["card-back", "pack-front", "pack-back"].includes(assetType)) {
+    if (!["card", "card-back", "pack-front", "pack-back"].includes(assetType)) {
       return c.json({ success: false, error: "Invalid asset type" }, 400);
     }
 
@@ -494,12 +492,8 @@ export async function handleDeleteAsset(c: Context<{ Bindings: Env }>): Promise<
       // WebPが存在しなくてもエラーにしない
     }
 
-    // アクティブ設定を確認
-    const activeAssets = await getActiveAssets(bucket);
-    if (activeAssets[assetType] === id) {
-      activeAssets[assetType] = null;
-      await saveActiveAssets(bucket, activeAssets);
-    }
+    // DBからも削除（Service Bindings RPC経由）
+    await deleteAssetFromDb(c, id);
 
     const response: AssetDeleteResponse = {
       success: true,

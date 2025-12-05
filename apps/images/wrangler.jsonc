@@ -19,6 +19,15 @@
     }
   ],
 
+  // Service Bindings（backend API連携）
+  "services": [
+    {
+      "binding": "BACKEND_API",
+      "service": "trading-card-simulator-api",
+      "entrypoint": "AssetService"
+    }
+  ],
+
   // Container設定
   "containers": [
     {
@@ -51,7 +60,8 @@
   // ローカル開発時のDocker container URL
   "vars": {
     "ALLOWED_ORIGINS": "http://localhost:5173,http://localhost:5174,https://trading-card-simulator.pages.dev",
-    "IMAGE_TRANSFORMER_URL": "http://localhost:8090"
+    "IMAGE_TRANSFORMER_URL": "http://localhost:8090",
+    "BACKEND_API_URL": "http://localhost:8787"
   },
 
   // 環境別設定
@@ -67,6 +77,13 @@
           "binding": "CARD_IMAGES",
           "bucket_name": "trading-card-images-staging"
         }
+      ],
+      "services": [
+        {
+          "binding": "BACKEND_API",
+          "service": "trading-card-simulator-api-staging",
+          "entrypoint": "AssetService"
+        }
       ]
     },
     "production": {
@@ -79,6 +96,13 @@
         {
           "binding": "CARD_IMAGES",
           "bucket_name": "trading-card-images-prod"
+        }
+      ],
+      "services": [
+        {
+          "binding": "BACKEND_API",
+          "service": "trading-card-simulator-api",
+          "entrypoint": "AssetService"
         }
       ],
       "containers": [

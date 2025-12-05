@@ -15,17 +15,26 @@ export async function uploadToR2(
     contentType: string;
     originalName: string;
     size: number;
+    /** パック画像のセットID（表面と裏面を紐付ける） */
+    packSetId?: string;
   },
 ): Promise<void> {
+  const customMetadata: Record<string, string> = {
+    originalName: metadata.originalName,
+    size: metadata.size.toString(),
+    uploadedAt: new Date().toISOString(),
+  };
+
+  // パック画像の場合はセットIDを保存
+  if (metadata.packSetId) {
+    customMetadata.packSetId = metadata.packSetId;
+  }
+
   await bucket.put(key, file, {
     httpMetadata: {
       contentType: metadata.contentType,
     },
-    customMetadata: {
-      originalName: metadata.originalName,
-      size: metadata.size.toString(),
-      uploadedAt: new Date().toISOString(),
-    },
+    customMetadata,
   });
 }
 
@@ -51,6 +60,7 @@ export async function listFromR2(
     limit: options?.limit ?? 100,
     cursor: options?.cursor,
     prefix: options?.prefix,
+    include: ["customMetadata", "httpMetadata"],
   });
 }
 

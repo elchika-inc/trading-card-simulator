@@ -17,10 +17,12 @@
     "deploy": "bunx wrangler deploy --config wrangler.jsonc"
   },
   "dependencies": {
+    "@repo/types": "workspace:*",
     "hono": "^4.10.6",
-    "@repo/types": "workspace:*"
+    "uuid": "^13.0.0"
   },
   "devDependencies": {
-    "@hono/node-server": "^1.19.6"
+    "@hono/node-server": "^1.19.6",
+    "@types/uuid": "^11.0.0"
   }
 }

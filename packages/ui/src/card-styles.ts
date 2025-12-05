@@ -1,9 +1,16 @@
 /**
  * カードのスタイル関数
- * ホログラムエフェクトとテキストスタイルを生成
+ * ホログラムエフェクト、テキストスタイル、フレーム色を生成
  */
 
-import type { HoloType, TextStyleType } from "@repo/types";
+import {
+  type CardRarity,
+  DEFAULT_FRAME_COLORS,
+  type FrameColor,
+  type FrameColorPreset,
+  type HoloType,
+  type TextStyleType,
+} from "@repo/types";
 import type { CSSProperties } from "react";
 
 /**
@@ -814,3 +821,120 @@ export const getTextStyle = (
       };
   }
 };
+
+/**
+ * フレーム色プリセットのカラー定義
+ * 各プリセットに対応するCSS色値を定義
+ */
+export const FRAME_COLOR_VALUES: Record<
+  FrameColorPreset,
+  { normal: string; hover: string; gradient?: string }
+> = {
+  default: { normal: "#1f2937", hover: "#6b7280" }, // gray-800, gray-500
+  gold: {
+    normal: "#b8860b",
+    hover: "#ffd700",
+    gradient: "linear-gradient(135deg, #b8860b 0%, #ffd700 50%, #b8860b 100%)",
+  },
+  silver: {
+    normal: "#708090",
+    hover: "#c0c0c0",
+    gradient: "linear-gradient(135deg, #708090 0%, #c0c0c0 50%, #708090 100%)",
+  },
+  bronze: {
+    normal: "#8b4513",
+    hover: "#cd7f32",
+    gradient: "linear-gradient(135deg, #8b4513 0%, #cd7f32 50%, #8b4513 100%)",
+  },
+  platinum: {
+    normal: "#a0a0a0",
+    hover: "#e5e5e5",
+    gradient: "linear-gradient(135deg, #a0a0a0 0%, #e5e5e5 50%, #a0a0a0 100%)",
+  },
+  red: { normal: "#991b1b", hover: "#ef4444" }, // red-800, red-500
+  blue: { normal: "#1e40af", hover: "#3b82f6" }, // blue-800, blue-500
+  green: { normal: "#166534", hover: "#22c55e" }, // green-800, green-500
+  purple: { normal: "#6b21a8", hover: "#a855f7" }, // purple-800, purple-500
+  pink: { normal: "#9d174d", hover: "#ec4899" }, // pink-800, pink-500
+  orange: { normal: "#9a3412", hover: "#f97316" }, // orange-800, orange-500
+  black: { normal: "#000000", hover: "#374151" }, // black, gray-700
+  white: { normal: "#d1d5db", hover: "#ffffff" }, // gray-300, white
+  rainbow: {
+    normal: "transparent",
+    hover: "transparent",
+    gradient:
+      "linear-gradient(135deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3)",
+  },
+  custom: { normal: "#1f2937", hover: "#6b7280" }, // フォールバック
+};
+
+/**
+ * フレーム色のスタイルを取得
+ * @param frameColor フレーム色設定（省略時はdefault）
+ * @param rarity レアリティ（frameColorが未設定の場合にデフォルト色を決定）
+ * @param isHovering ホバー状態
+ * @returns CSSスタイルオブジェクト（borderColor, borderImage含む）
+ */
+export const getFrameStyle = (
+  frameColor: FrameColor | undefined,
+  rarity: CardRarity,
+  isHovering: boolean,
+): CSSProperties => {
+  // フレーム色の決定
+  let preset: FrameColorPreset;
+  let customColor: string | undefined;
+
+  if (frameColor) {
+    preset = frameColor.preset;
+    customColor = frameColor.customColor;
+  } else {
+    // フレーム色未設定の場合、レアリティのデフォルト色を使用
+    preset = DEFAULT_FRAME_COLORS[rarity];
+  }
+
+  // カスタムカラーの場合
+  if (preset === "custom" && customColor) {
+    return {
+      borderColor: isHovering ? lightenColor(customColor, 30) : customColor,
+    };
+  }
+
+  const colorValue = FRAME_COLOR_VALUES[preset];
+
+  // グラデーションの場合
+  if (colorValue.gradient) {
+    return {
+      borderColor: "transparent",
+      borderImage: `${colorValue.gradient} 1`,
+      borderImageSlice: 1,
+    };
+  }
+
+  // 通常色の場合
+  return {
+    borderColor: isHovering ? colorValue.hover : colorValue.normal,
+  };
+};
+
+/**
+ * 色を明るくするユーティリティ関数
+ * @param hex HEXカラー
+ * @param percent 明るくする割合（0-100）
+ */
+function lightenColor(hex: string, percent: number): string {
+  // #を除去
+  const cleanHex = hex.replace("#", "");
+
+  // RGB値を取得
+  const r = Number.parseInt(cleanHex.substring(0, 2), 16);
+  const g = Number.parseInt(cleanHex.substring(2, 4), 16);
+  const b = Number.parseInt(cleanHex.substring(4, 6), 16);
+
+  // 明るくする
+  const newR = Math.min(255, Math.floor(r + (255 - r) * (percent / 100)));
+  const newG = Math.min(255, Math.floor(g + (255 - g) * (percent / 100)));
+  const newB = Math.min(255, Math.floor(b + (255 - b) * (percent / 100)));
+
+  // HEXに戻す
+  return `#${newR.toString(16).padStart(2, "0")}${newG.toString(16).padStart(2, "0")}${newB.toString(16).padStart(2, "0")}`;
+}

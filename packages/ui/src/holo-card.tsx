@@ -6,7 +6,7 @@
 import type { Card } from "@repo/types";
 import * as LucideIcons from "lucide-react";
 import { useCallback, useRef, useState } from "react";
-import { getHoloStyle, getTextStyle } from "./card-styles";
+import { getFrameStyle, getHoloStyle, getTextStyle } from "./card-styles";
 
 interface HoloCardProps {
   card: Card;
@@ -82,6 +82,7 @@ export function HoloCard({
   // スタイル計算 - ホバー状態を渡す
   const holoStyle = getHoloStyle(card.holoType, state.background, state.isHovering);
   const textStyle = getTextStyle(card.textStyle, state.background, state.isHovering);
+  const frameStyle = getFrameStyle(card.frameColor, card.rarity, state.isHovering);
 
   // アイコンコンポーネントを動的に取得
   const IconComponent = (LucideIcons[card.iconName as keyof typeof LucideIcons] ||
@@ -148,9 +149,8 @@ export function HoloCard({
 
           {/* 枠線 */}
           <div
-            className={`absolute inset-0 border-[6px] rounded-xl border-opacity-60 z-20 pointer-events-none transition-colors duration-300 ${
-              state.isHovering ? "border-gray-500" : "border-gray-800"
-            }`}
+            className="absolute inset-0 border-[6px] rounded-xl border-opacity-60 z-20 pointer-events-none transition-colors duration-300"
+            style={frameStyle}
           />
 
           {/* 画像 */}

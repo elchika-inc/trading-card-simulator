@@ -72,11 +72,18 @@ export function PackInspecting({
 
           {/* 裏面: カード裏のデザイン */}
           <div className="absolute inset-0 backface-hidden rotate-y-180 rounded-xl overflow-hidden shadow-2xl border-[4px] border-slate-700 bg-slate-800">
-            <img
-              src={backImage || "/assets/card-back.png"}
-              alt="Card Back"
-              className="w-full h-full object-cover"
-            />
+            {backImage ? (
+              <img src={backImage} alt="Card Back" className="w-full h-full object-cover" />
+            ) : (
+              /* CSSフォールバック: グラデーション + パターン */
+              <div className="w-full h-full bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 relative">
+                <div className="absolute inset-0 opacity-20 bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,rgba(255,255,255,0.05)_10px,rgba(255,255,255,0.05)_20px)]" />
+                <div className="absolute inset-4 border-2 border-slate-600/50 rounded-lg" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500/30 to-blue-500/30 border border-white/10" />
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
